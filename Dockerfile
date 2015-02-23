@@ -18,8 +18,12 @@ RUN	apt-get update -qq && \
 	apt-get autoremove --yes && \
 	rm -rf /var/lib/{apt,dpkg,cache,log}/
 
+ADD	conf/apache2/puppetmaster.conf /etc/apache2/sites-available/puppetmaster.conf
+
 # configure apache
 RUN	rm -rf /var/www && \
+	a2dissite 000-default && \
+	a2ensite puppetmaster && \
 	a2enmod php5 && \
 	a2enmod rewrite
 
@@ -29,6 +33,8 @@ RUN	curl -L --silent ${COREOS_IMAGE_URL} | zcat | cpio -iv && \
 	unsquashfs usr.squashfs && \
 	cp /tmp/squashfs-root/bin/coreos-cloudinit /usr/local/bin && \
 	rm -rf /tmp/*
+
+ADD	www /var/www
 
 EXPOSE 80
 
