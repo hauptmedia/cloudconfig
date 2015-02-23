@@ -15,5 +15,5 @@ docker run -d -p 1234:80 -e BASE_URL=http://puppetmaster.example.com:1234 hauptm
 Run on CoreOS hosts to update cloud-config.yml or on new (bare metal hosts) to install CoreOS with the provisioned cloud-config.yml
 
 ```bash
-curl -sSL http://puppetmaster.example.com:1234/install.sh | sh
+sudo curl -sSL http://puppetmaster.example.com:1234/install.sh | sh
 ```
