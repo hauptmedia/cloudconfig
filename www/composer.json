@@ -1,0 +1,12 @@
+{
+    "name": "hauptmedia/puppetmaster",
+    "require": {
+        "symfony/yaml": "~2.6"
+    },
+    "authors": [
+        {
+            "name": "Julian Haupt",
+            "email": "julian.haupt@hauptmedia.de"
+        }
+    ]
+}
