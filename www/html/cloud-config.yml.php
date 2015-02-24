@@ -1,20 +1,42 @@
 <?php
-require_once('../database.inc.php');
+use Symfony\Component\Yaml\Exception\ParseException;
+use Symfony\Component\Yaml\Parser;
 
-if(!array_key_exists('mac', $_GET) || !array_key_exists($_GET['mac'], $database)) {
-        header('HTTP/1.1 404 Not Found');
+$yaml = new Parser();
+
+try {
+	$yamlContent = $yaml->parse(file_get_contents('../cluster-config.yml'));
+
+	if(!array_key_exists('mac', $_GET)) {
+		throw new \Exception("Missing mac");
+	}
+
+	$mac = $_GET['mac'];
+
+	$cluster = $yamlContent['cluster'];
+
+	$nodes = array_filter($cluster['nodes'], function($entry) use ($mac) {
+		return $entry['mac'] == $mac;
+	});
+
+	if(count($nodes) != 1) {
+	        header('HTTP/1.1 404 Not Found');
+        	exit;
+	}
+
+	$node = $nodes[0];
+
+} catch (\Exception $e) {
+	header('HTTP/1.1 500 Internal server error');
 	exit;
 }
-
-$entry = $database[$_GET['mac']];
-
 ?>
 #cloud-config
 
-hostname: <?=$entry['hostname']?>
+hostname: <?=$node['hostname']?>
 
 ssh_authorized_keys:
-  - ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEArKMGZBolEp3VmDoT430lgDcR6zee+dhvxE/Qe2PHhBA6yxJEqJGAwXE5OEUVbSa2UCjWKzaxmHLMuLZswyFtYe02MYxpXAwQSVggwWUfMD6bvl3afAuFtXbbt+qkrzh+YQcqOYh74/e5BA4cTNLs/5Q4X403j+IT4utbr0r3vKcKU14v5puoL+Vwy6GJSJWvUlzRZzAPZuDCLdv8qaeBVv9zZWNooS7Y7M7rGx1jiW3M2pJC11FuHgLRwKUT4zrKuVqREQXq325a3V0kh6msbKrkfKQAbTREGpllyqCe7JN6CPRDWHp0/DXjcsxhQYHT6A7tp04nvwDGscu2hKzAOQ== Julian Haupt <julian.haupt@hauptmedia.de> 
+  - <?=$cluster['ssh-authorized-keys'][0]?>
 
 coreos:
   units:
@@ -46,13 +68,13 @@ coreos:
         Type=ext4
 
   etcd:
-      name: <?=$entry['hostname']?> 
-      discovery: <?=$entry['discovery']?>
+      name: <?=$node['hostname']?> 
+      discovery: <?=$cluster['discovery']?>
 
-      addr: <?=$entry['ip']?>:4001
-      peer-addr: <?=$entry['ip']?>:7001
+      addr: <?=$node['ip']?>:4001
+      peer-addr: <?=$node['ip']?>:7001
 
 
   fleet:
-      public-ip: <?=$entry['ip']?> 
-      metadata: <?=$entry['metadata']?>
+      public-ip: <?=$node['ip']?> 
+      metadata: <?=$node['metadata']?>

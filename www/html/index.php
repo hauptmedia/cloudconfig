@@ -1,4 +1,5 @@
 <?php
+require_once('../vendor/autoload.php');
 
 switch($_SERVER['REDIRECT_URL']) {
 	case '/install.sh':
