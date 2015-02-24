@@ -15,9 +15,9 @@ try {
 
 	$cluster = $yamlContent['cluster'];
 
-	$nodes = array_filter($cluster['nodes'], function($entry) use ($mac) {
+	$nodes = array_values(array_filter($cluster['nodes'], function($entry) use ($mac) {
 		return $entry['mac'] == $mac;
-	});
+	}));
 
 	if(count($nodes) != 1) {
 	        header('HTTP/1.1 404 Not Found');
