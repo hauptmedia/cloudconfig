@@ -11,7 +11,12 @@ You can setup your cluster nodes in a yaml based configuration file which must b
 ## Example cluster-config.yml
 ```yaml
 cluster:
+  features:
+    - etcd
+    - fleet
+      
   discovery: https://discovery.etcd.io/xyz
+  
   ssh-authorized-keys:
     - ssh-rsa ...
 
@@ -43,10 +48,25 @@ Run on CoreOS hosts to update cloud-config.yml or on new (bare metal hosts) to i
 curl -sSL http://puppetmaster.example.com:1234/install.sh | sudo sh
 ```
 
-## References in CoreOS documentation
+## Securing etcd with TLS
 
-https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
-https://coreos.com/docs/cluster-management/setup/mounting-storage/
-https://coreos.com/docs/launching-containers/building/customizing-docker/
-https://coreos.com/docs/launching-containers/building/registry-authentication/
+### Client certificate requirements
+* IP address of the client has to be included as *subjectAltName* on the certificate. In order to get *subjectAltName* you need to enable relevant *X509.3* extension
+* Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Client Authentication*.
+
+### Peer certificate requirements
+* Similarly to client certificate, the IP address has to be included in *SAN*. See above for details.
+* Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Server Authentication*. There is no mention of this in CoreOS docs.
+
+
+
+## References on third party websites and the CoreOS documentation
+
+* https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
+* https://coreos.com/docs/cluster-management/setup/mounting-storage/
+* http://blog.skrobul.com/securing_etcd_with_tls/
+* https://coreos.com/docs/distributed-configuration/etcd-security/
+* http://www.g-loaded.eu/2005/11/10/be-your-own-ca/
+* https://coreos.com/docs/launching-containers/building/customizing-docker/
+* https://coreos.com/docs/launching-containers/building/registry-authentication/
 

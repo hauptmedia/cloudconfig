@@ -1,7 +1,10 @@
 <?php
+use Symfony\Component\Yaml\Dumper;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Parser;
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 $yaml = new Parser();
 
 try {
@@ -13,9 +16,9 @@ try {
 
 	$mac = $_GET['mac'];
 
-	$cluster = $yamlContent['cluster'];
+	$clusterConfig = $yamlContent['cluster'];
 
-	$nodes = array_values(array_filter($cluster['nodes'], function($entry) use ($mac) {
+	$nodes = array_values(array_filter($clusterConfig['nodes'], function($entry) use ($mac) {
 		return $entry['mac'] == $mac;
 	}));
 
@@ -24,57 +27,50 @@ try {
         	exit;
 	}
 
-	$node = $nodes[0];
+	$nodeConfig = $nodes[0];
 
+
+    $cloudConfig = array();
+    $cloudConfig["hostname"]            = $nodeConfig["hostname"];
+    $cloudConfig["ssh_authorized_keys"] = $clusterConfig["ssh-authorized-keys"];
+
+    foreach($clusterConfig["features"] as $feature) {
+        if(!file_exists("../features/" . $feature . ".php")) {
+            throw new \Exception("Unkwnown feature: " . $feature);
+        }
+        
+        $featureFn = require("../features/" . $feature . ".php");
+        $cloudConfig = call_user_func($featureFn, $clusterConfig, $nodeConfig, $cloudConfig);
+    }
+
+    $dumper = new Dumper();
+    $cloudConfigFileContent = "#cloud-config\n";
+    $cloudConfigFileContent .= $dumper->dump($cloudConfig, 4);
+
+    //Validate generated file with coreos-cloudinit
+    $tmpFileName = tempnam("/tmp", "cloud-config.yml");
+    file_put_contents($tmpFileName, $cloudConfigFileContent);
+    exec("/usr/local/bin/coreos-cloudinit -validate --from-file=".escapeshellarg($tmpFileName), $output, $ret);
+    unlink($tmpFileName);
+    
+    if ($ret != 0) {
+        throw new \Exception("coreos-cloudinit validation failed:\n\n" . implode("\n", $output));
+        
+    }
+    
 } catch (\Exception $e) {
 	header('HTTP/1.1 500 Internal server error');
+    header("Content-Type: text/plain");
+    print $e->getMessage();
 	exit;
 }
+
+
+
+header("Content-Type: text/plain");
+print($cloudConfigFileContent);
+
 ?>
-#cloud-config
-
-hostname: <?=$node['hostname']?>
-
-ssh_authorized_keys:
-  - <?=$cluster['ssh-authorized-keys'][0]?>
-
-coreos:
-  units:
-    - name: etcd.service
-      command: start
-    - name: fleet.service
-      command: start
-    - name: format-ephemeral.service
-      command: start
-      content: |
-        [Unit]
-        Description=Formats the ephemeral drive
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        ExecStart=/usr/sbin/wipefs -f /dev/sdb
-        ExecStart=/usr/sbin/mke2fs -q -t ext4 -b 4096 -i 4096 -I 128 /dev/sdb
-    - name: var-lib-docker.mount
-      command: start
-      content: |
-        [Unit]
-        Description=Mount ephemeral to /var/lib/docker
-        Requires=format-ephemeral.service
-        After=format-ephemeral.service
-        Before=docker.service
-        [Mount]
-        What=/dev/sdb
-        Where=/var/lib/docker
-        Type=ext4
-
-  etcd:
-      name: <?=$node['hostname']?> 
-      discovery: <?=$cluster['discovery']?>
-
-      addr: <?=$node['ip']?>:4001
-      peer-addr: <?=$node['ip']?>:7001
 
 
-  fleet:
-      public-ip: <?=$node['ip']?> 
-      metadata: <?=$node['metadata']?>
+
