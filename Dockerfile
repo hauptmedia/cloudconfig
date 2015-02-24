@@ -13,7 +13,7 @@ ENV	COREOS_IMAGE_URL="${COREOS_BASE_URL}/${COREOS_VERSION_ID}/${COREOS_IMAGE_NAM
 
 # install required packges
 RUN	apt-get update -qq && \
-	apt-get install -y cpio squashfs-tools curl apache2 php5 php5-curl bzip2 && \
+	apt-get install -y cpio squashfs-tools curl apache2 php5 php5-curl bzip2 openssl && \
 	apt-get clean autoclean && \
 	apt-get autoremove --yes && \
 	rm -rf /var/lib/{apt,dpkg,cache,log}/
