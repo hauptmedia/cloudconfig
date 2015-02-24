@@ -1,19 +1,5 @@
 <?php
-// generate a new token for each unique cluster from https://discovery.etcd.io/new
-$discovery = "https://discovery.etcd.io/05b391cfc6ff5616461b747ff5562646";
-
-$database = array(
-	'c8:60:00:5e:c4:8d' => array(
-		'hostname'	=> 'coreos-1',
-		'discovery'	=> $discovery,
-		'metadata'	=> 'datacenter=hetzner-rz16'
-	),
-	'c8:60:00:54:be:91' => array(
-		'hostname'	=> 'coreos-2',
-		'discovery'	=> $discovery,
-		'metadata'	=> 'datacenter=hetzner-rz16'
-	)
-);
+require_once('../database.inc.php');
 
 if(!array_key_exists('mac', $_GET) || !array_key_exists($_GET['mac'], $database)) {
         header('HTTP/1.1 404 Not Found');
@@ -63,10 +49,10 @@ coreos:
       name: <?=$entry['hostname']?> 
       discovery: <?=$entry['discovery']?>
 
-      # multi-region and multi-cloud deployments need to use $public_ipv4
-      addr: $public_ipv4:4001
-      peer-addr: $public_ipv4:7001
+      addr: <?=$entry['ip']?>:4001
+      peer-addr: <?=$entry['ip']?>:7001
+
 
   fleet:
-      public-ip: $public_ipv4
+      public-ip: <?=$entry['ip']?> 
       metadata: <?=$entry['metadata']?>
