@@ -41,5 +41,4 @@ ENTRYPOINT      ["/usr/local/sbin/docker-entrypoint.sh"]
 
 EXPOSE 80
 
-VOLUME ["/var/log/apache2"]
 CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
