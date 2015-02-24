@@ -36,6 +36,9 @@ RUN	curl -L --silent ${COREOS_IMAGE_URL} | zcat | cpio -iv && \
 
 ADD	www /var/www
 
+COPY		docker-entrypoint.sh /usr/local/sbin/docker-entrypoint.sh
+ENTRYPOINT      ["/usr/local/sbin/docker-entrypoint.sh"]
+
 EXPOSE 80
 
 VOLUME ["/var/log/apache2"]

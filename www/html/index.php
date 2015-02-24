@@ -6,7 +6,7 @@ switch($_SERVER['REDIRECT_URL']) {
 	break;
 
 	case '/cloud-config.yml':
-		echo "Hello world";
+		require_once('cloud-config.yml.php');
 	break;
 
 	default:

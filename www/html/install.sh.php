@@ -66,7 +66,9 @@ fi
 echo New cloud-config.yml
 echo
 cat ${TMP_FILE}
- 
+
+echo ""
+echo "" 
 echo "Starting automatic provioning in 5 seconds (CTRL-C to abort)"
 
 sleep 5
@@ -86,6 +88,8 @@ else
 	mv ${TMP_FILE} /var/lib/coreos-install/user_data
 fi
 	
+echo ""
+echo ""
 echo "Rebooting in 5 seconds (CTRL-C to abort)"
 sleep 5
 reboot
