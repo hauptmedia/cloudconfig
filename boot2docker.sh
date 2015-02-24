@@ -9,4 +9,5 @@ docker run -i -t --rm \
 -p 80:80 \
 -v $(pwd)/www:/var/www \
 -e BASE_URL=http://$IP \
-hauptmedia/puppetmaster
+hauptmedia/puppetmaster \
+$1
