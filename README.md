@@ -1,12 +1,10 @@
-# puppetmaster 
+# cloudconfig
 
 A system for provisioning CoreOS cloud-config.yml files
 
 This system is currently useful if you are running CoreOS on bare metal instances which can be identified by their mac address.
 
-It uses the public ip address of the machines for communication.
-
-You can setup your cluster nodes in a yaml based configuration file which must be mounted in the docker instance.
+You can setup your cluster nodes in a yaml based configuration file which must be mounted via the *var* mount in the docker instance.
 
 ## Example cluster-config.yml
 ```yaml
@@ -34,23 +32,79 @@ cluster:
 
 ## Example usage
 
-### Server 
+### Provisioning server
+
+You have to provide a volume for the */opt/cloudconfig/var* directory. In this directory a file named *cluster-config.yml* is expected.
+
+You might want to copy the example *conf/cluster-config.yml* to your var/ directory for a quick start.
+
 
 ```bash
-docker run -d -p 1234:80 -v /root/cluster-config.yml:/var/www/cluster-config.yml -e BASE_URL=http://puppetmaster.example.com:1234 hauptmedia/puppetmaster
+docker run -d -p 1234:80 -v $(pwd)/var:/opt/cloudconfig/var -e BASE_URL=http://puppetmaster.example.com:1234 hauptmedia/puppetmaster
 ```
 
-### Node usage
+### Cluster Node usage
 
 Run on CoreOS hosts to update cloud-config.yml or on new (bare metal hosts) to install CoreOS with the provisioned cloud-config.yml
 
 ```bash
-curl -sSL http://puppetmaster.example.com:1234/install.sh | sudo sh
+curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 ```
 
-## Securing etcd with TLS
+## Available features & config options
 
-Etcd needs specially crafted certificates to function properly. An *openssl.cnf* with all the needed settings is included in this repository.
+### default
+
+### per node config options
+
+
+### etcd
+
+Run the etcd service
+
+#### per node config options
+* *node[etcd][name]* - The node name (defaults to *node[hostname]*)
+* *node[etcd][addr]* - The advertised public hostname:port for client communication (defaults to *node[ip]:4001*)
+* *node[etcd][peer-addr]* - The advertised public hostname:port for server communication (defaults to *node[ip]:7001*)
+* *node[etcd][discovery]* - A URL to use for discovering the peer list (defaults to *cluster[discovery]*)
+
+#### References
+* https://coreos.com/docs/distributed-configuration/etcd-configuration/
+
+### etcd-ssl
+
+Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and a 
+client & server cert for eatch etcd instance.
+
+**The *CommonName* must metch the etcd name and the IP addresses etcd uses must be integrated into the certificate.**
+
+```bash
+docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca
+docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-client-cert 1.etcd.example.com
+````
+
+
+#### References
+* https://coreos.com/docs/distributed-configuration/customize-etcd-unit/
+
+### fleet
+
+Run the fleet service
+
+### ephemeral-drive
+
+Mounts an additional ephemeral drive to a specified mount point
+
+#### References
+* https://coreos.com/docs/cluster-management/setup/mounting-storage/
+
+
+## Securing etcd with SSL/TLS
+
+In a production environment it might be a good idea to secure etcd with it's integrated SSL/TLS secruity. However etcd
+needs specially crafted certificates to function properly. An *openssl.cnf* with all the needed settings is included in
+this repository.
 
 You can use the provided scripts in *bin* directory to manage your ssl certificates.
 
@@ -89,6 +143,8 @@ docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig 
 
 ### Using client auth with curl
 
+**Please note: in order to activate client authentification in etcd you need to run etcd with the *-ca-file* option**
+
 ```bash
 curl -XPUT -v -L https://127.0.0.1:4001/v2/keys/foo -d value=bar \
   --key etc-client.example.com.key \
@@ -117,8 +173,6 @@ curl -XPUT -v -L https://127.0.0.1:4001/v2/keys/foo -d value=bar \
 ## References on third party websites and the CoreOS documentation
 
 * https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
-* https://coreos.com/docs/cluster-management/setup/mounting-storage/
-* http://www.g-loaded.eu/2005/11/10/be-your-own-ca/
 * https://coreos.com/docs/launching-containers/building/customizing-docker/
 * https://coreos.com/docs/launching-containers/building/registry-authentication/
 
