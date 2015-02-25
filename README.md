@@ -50,14 +50,29 @@ curl -sSL http://puppetmaster.example.com:1234/install.sh | sudo sh
 
 ## Securing etcd with TLS
 
-### Client certificate requirements
+Etcd need specially crafted certificates to function properly. An *openssl.cnf* with all the needed settings is included in this repository.
+
+You can use the provided scripts in *bin* directory to manage your ssl certificates.
+
+### Create an certificate authority for etcd
+
+Run the create-etcd-ca command with the common name as parameter. 
+
+You need to provide a volume for the */opt/cloudconfig/var* directory. The certificates will be saved in *var/etcd-ca*.
+
+```bash
+docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca ca.etcd.commonname.com
+```
+
+### Certificate requirements in detail
+
+#### Client certificate requirements
 * IP address of the client has to be included as *subjectAltName* on the certificate. In order to get *subjectAltName* you need to enable relevant *X509.3* extension
 * Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Client Authentication*.
 
-### Peer certificate requirements
+#### Peer certificate requirements
 * Similarly to client certificate, the IP address has to be included in *SAN*. See above for details.
-* Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Server Authentication*. There is no mention of this in CoreOS docs.
-
+* Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Server Authentication*.
 
 
 ## References on third party websites and the CoreOS documentation
