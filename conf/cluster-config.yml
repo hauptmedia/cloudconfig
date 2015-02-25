@@ -4,6 +4,7 @@ cluster:
     - etcd-ssl
     - fleet
 
+  # generate a new token for each unique cluster from https://discovery.etcd.io/new
   discovery: https://discovery.etcd.io/xyz
 
   ssh-authorized-keys:
