@@ -17,11 +17,11 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
         'content' => '
 [Service]
 # Client Env Vars
-Environment=ETCD_CA_FILE=/etc/ssl/etcd/certs/etcd-ca.crt
+Environment=ETCD_CA_FILE=/etc/ssl/etcd/certs/ca.crt
 Environment=ETCD_CERT_FILE=/etc/ssl/etcd/certs/client.crt
 Environment=ETCD_KEY_FILE=/etc/ssl/etcd/private/client.key
 # Peer Env Vars
-Environment=ETCD_PEER_CA_FILE=/etc/ssl/etcd/certs/etcd-ca.crt
+Environment=ETCD_PEER_CA_FILE=/etc/ssl/etcd/certs/ca.crt
 Environment=ETCD_PEER_CERT_FILE=/etc/ssl/etcd/certs/server.crt
 Environment=ETCD_PEER_KEY_FILE=/etc/ssl/etcd/private/server.key'
     );
@@ -30,7 +30,7 @@ Environment=ETCD_PEER_KEY_FILE=/etc/ssl/etcd/private/server.key'
     $etcdCADir = realpath( __DIR__ . '/../var/etcd-ca' );
     
     $requiredFiles = array(
-        $etcdCADir . '/certs/etcd-ca.crt'                             => '/etc/ssl/etcd/certs/etcd-ca.crt',
+        $etcdCADir . '/certs/etcd-ca.crt'                             => '/etc/ssl/etcd/certs/ca.crt',
         
         $etcdCADir . '/certs/' .      $etcdName . ".crt"              => '/etc/ssl/etcd/certs/server.crt',
         $etcdCADir . '/private/' .    $etcdName . ".key"              => '/etc/ssl/etcd/private/server.key',
