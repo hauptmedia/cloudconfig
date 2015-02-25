@@ -13,7 +13,7 @@ touch ${ETCD_CA_DIR}/index.txt
 echo '01' > ${ETCD_CA_DIR}/serial
 
 openssl req -config ${CLOUDCONFIG_INSTALL_DIR}/conf/openssl.cnf -new -x509 -extensions v3_ca \
-  -keyout ${ETCD_CA_DIR}/private/etcd-ca.key -out ${ETCD_CA_DIR}/certs/etcd-ca.crt -days 3650
+  -keyout ${ETCD_CA_DIR}/private/etcd-ca.key -out ${ETCD_CA_DIR}/certs/etcd-ca.crt
 
 if [ $? -ne 0 ];then
     echo "Could not create ca. Aborting!" 1>&2
