@@ -1,4 +1,4 @@
 build:
-	docker build -t="hauptmedia/puppetmaster" .
+	docker build -t="hauptmedia/cloudconfig" .
 
 .PHONY: build 
