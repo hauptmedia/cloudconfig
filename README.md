@@ -15,7 +15,7 @@ cluster:
     - fleet
 
   etcd-ssl:
-    mode: peer-only
+    mode: both
 
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd:
