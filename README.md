@@ -65,7 +65,7 @@ Run the etcd service
 
 #### configuration options
 * *node[etcd][name]* - The node name (defaults to *node[hostname]*)
-* *node[etcd][addr]* - The advertised public hostname:port for client communication (defaults to *127.0.0.1:2379*)
+* *node[etcd][addr]* - The advertised public hostname:port for client communication (defaults to *node[ip]:2379*)
 * *node[etcd][peer-addr]* - The advertised public hostname:port for server communication (defaults to *node[ip]:2380*)
 * *cluster[etcd][discovery]* or *node[etcd][discovery]* - A URL to use for discovering the peer list (optional)
 

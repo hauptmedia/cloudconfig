@@ -1,16 +1,15 @@
 <?php
 return function($clusterConfig, $nodeConfig, $cloudConfig) {
     // merge config  node <= cluster <= defaults
-    $etcdConfig = array(
-        'addr'  => '127.0.0.1:2379'
-    );
+    $etcdConfig = array();
 
     if(!empty($nodeConfig['hostname'])) {
         $etcdConfig['name'] = $nodeConfig['hostname'];
     }
 
     if(!empty($nodeConfig['ip'])) {
-        $etcdConfig['peer-addr'] = $nodeConfig['ip'] . ':2380';
+        $etcdConfig['addr']         = $nodeConfig['ip'] . ':2379';
+        $etcdConfig['peer-addr']    = $nodeConfig['ip'] . ':2380';
     }
 
     if(!empty($clusterConfig['etcd'])) {
@@ -47,9 +46,6 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     if(empty($etcdConfig['peer-addr'])) {
         throw new \Exception("Missing etcd peer-addr");
     }
-
-    //always bind the advertised address
-    $etcdConfig['bind-addr'] = $etcdConfig['addr'];
     
     $cloudConfig['coreos']['etcd'] = $etcdConfig;
 
