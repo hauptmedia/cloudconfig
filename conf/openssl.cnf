@@ -40,7 +40,7 @@ req_extensions     = etcd_client
 
 [ req_distinguished_name ]
 countryName                = Country Name (2 letter code)
-countryName_default        = US
+countryName_default        = DE
 countryName_min            = 2
 countryName_max            = 2
 commonName                 = Common Name (FQDN)
