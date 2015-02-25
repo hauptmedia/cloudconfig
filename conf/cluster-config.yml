@@ -1,6 +1,7 @@
 cluster:
   features:
     - etcd
+    - etcd-ssl
     - fleet
 
   discovery: https://discovery.etcd.io/xyz
