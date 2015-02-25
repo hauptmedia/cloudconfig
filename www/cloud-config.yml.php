@@ -8,7 +8,13 @@ ini_set('display_errors', 1);
 $yaml = new Parser();
 
 try {
-	$yamlContent = $yaml->parse(file_get_contents('../cluster-config.yml'));
+    $fileContents = @file_get_contents('../var/cluster-config.yml');
+    
+    if(!$fileContents) {
+        throw new \Exception("Could not find var/cluster-config.yml");
+    }
+    
+	$yamlContent = $yaml->parse($fileContents);
 
 	if(!array_key_exists('mac', $_GET)) {
 		throw new \Exception("Missing mac");
