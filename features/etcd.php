@@ -47,6 +47,9 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     if(empty($etcdConfig['peer-addr'])) {
         throw new \Exception("Missing etcd peer-addr");
     }
+
+    //always bind the advertised address
+    $etcdConfig['bind-addr'] = $etcdConfig['addr'];
     
     $cloudConfig['coreos']['etcd'] = $etcdConfig;
 
