@@ -161,18 +161,6 @@ docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig 
 
 ### Testing authentification
  
-Check if all machines are returning the same leader using:
-
-```bash
-curl --cert /etc/ssl/etcd/certs/client.crt \
-     --cacert /etc/ssl/etcd/certs/ca.crt  \
-     --key /etc/ssl/etcd/private/client.key \
-       https://127.0.0.1:2379/v2/stats/leader
-```
-
-
-### Using client auth with curl
-
 **Please note: in order to activate client authentification in etcd you need to run etcd with the *-ca-file* option**
 
 ```bash
