@@ -14,7 +14,8 @@ docker build -t="hauptmedia/cloudconfig" .
 docker run -i -t --rm \
 -p 80:80 \
 -v $(pwd)/var:/opt/cloudconfig/var \
--v $(pwd)/www:/opt/cloudconifg/www \
+-v $(pwd)/www:/opt/cloudconfig/www \
+-v $(pwd)/features:/opt/cloudconfig/features \
 -e BASE_URL=http://$IP \
 hauptmedia/cloudconfig \
 $@
