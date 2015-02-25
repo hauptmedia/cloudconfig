@@ -59,11 +59,6 @@ curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 
 ## Available features & config options
 
-### default
-
-### per node config options
-
-
 ### etcd
 
 Run the etcd service
