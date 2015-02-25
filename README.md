@@ -64,6 +64,18 @@ The certificates will be saved in *var/etcd-ca*.
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca
 ```
 
+### Creating a server certificate for etcd
+
+
+Run the *create-server-cert* script with a *common name* and up to *three additional* ip addresses and provide a volume for the */opt/cloudconfig/var* directory.
+
+The certificates will be saved in *var/etcd-ca*.
+
+**Please note: the CommonName must match the name used for the etcd instance**
+
+```bash
+docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+````
 
 ### Creating a client certificate for etcd
 
@@ -75,7 +87,7 @@ The certificates will be saved in *var/etcd-ca*.
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-client-cert etcd-client.example.com
 ```
 
-### Testing client auth with curl
+### Using client auth with curl
 
 ```bash
 curl -XPUT -v -L https://127.0.0.1:4001/v2/keys/foo -d value=bar \
