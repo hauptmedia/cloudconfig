@@ -179,12 +179,24 @@ curl --cert /etc/ssl/etcd/certs/client.crt \
 curl --cert /etc/ssl/etcd/certs/client.crt \
      --cacert /etc/ssl/etcd/certs/ca.crt  \
      --key /etc/ssl/etcd/private/client.key \
-     -v https://127.0.0.1:2379/v2/stats/leader
+     -v https://127.0.0.1:2379/v2/leader
+
+curl --cert /etc/ssl/etcd/certs/client.crt \
+     --cacert /etc/ssl/etcd/certs/ca.crt  \
+     --key /etc/ssl/etcd/private/client.key \
+     -v https://127.0.0.1:2379/v2/peers
        
 curl --cert /etc/ssl/etcd/certs/client.crt \
      --cacert /etc/ssl/etcd/certs/ca.crt  \
      --key /etc/ssl/etcd/private/client.key -v \
-     -XPUT -v -L https://127.0.0.1:2379/v2/keys/foo -d value=bar
+     -XPUT -v -L -d value=bar https://127.0.0.1:2379/v2/keys/foo
+ 
+curl --cert /etc/ssl/etcd/certs/client.crt \
+     --cacert /etc/ssl/etcd/certs/ca.crt  \
+     --key /etc/ssl/etcd/private/client.key -v \
+     -XDELETE -v -L https://127.0.0.1:2379/v2/keys/foo
+
+
 ```
 
 ### Certificate requirements in detail
