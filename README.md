@@ -80,14 +80,26 @@ Run the etcd service
 ### etcd-ssl
 
 Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and client, 
-server and peer certs for each cluster node.
+server and/or peer certs for each cluster node.
 
 **The IP addresses used by etcd must be integrated into the certificate.**
 
+Create a certificate authority (once)
+
 ```bash
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca
-docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+````
+
+For mode: peer-only only a peer certificate is required
+
+```bash
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-peer-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+````
+
+If you run mode: both you need also a server and client certificate
+
+```bash
+docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-client-cert 1.etcd.example.com
 ````
 
