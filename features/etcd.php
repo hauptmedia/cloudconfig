@@ -15,11 +15,32 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
         
     );
 
+    $etcdName =
+        !empty($nodeConfig['etcd']['name']) ?
+            $nodeConfig['etcd']['name'] :
+            $nodeConfig['hostname'];
+    
+    $etcdAddr =
+        !empty($nodeConfig['etcd']['addr']) ?
+        $nodeConfig['etcd']['addr'] :
+        $nodeConfig['ip'] . ':4001';
+
+    $etcdPeerAddr =
+        !empty($nodeConfig['etcd']['peer-addr']) ?
+            $nodeConfig['etcd']['peer-addr'] :
+            $nodeConfig['ip'] . ':7001';
+
+    $discovery =
+        !empty($nodeConfig['etcd']['discovery']) ?
+            $nodeConfig['etcd']['discovery'] :
+            $clusterConfig['discovery'];
+    
+    
     $cloudConfig['coreos']['etcd'] = array(
-        'name'      => $nodeConfig['hostname'],
-        'discovery' => $clusterConfig['discovery'],
-        'addr'      => $nodeConfig['ip'] . ':4001',
-        'peer-addr' => $nodeConfig['ip'] . ':7001'
+        'name'      => $etcdName,
+        'discovery' => $discovery,
+        'addr'      => $etcdAddr,
+        'peer-addr' => $etcdPeerAddr
     );
 
 
