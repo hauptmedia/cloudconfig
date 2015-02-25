@@ -1,6 +1,27 @@
 <?php
 return function($clusterConfig, $nodeConfig, $cloudConfig) {
+    // merge config  node <= cluster <= defaults
+    $etcdConfig = array(
+        'addr'  => '127.0.0.1:2379'
+    );
 
+    if(!empty($nodeConfig['hostname'])) {
+        $etcdConfig['name'] = $nodeConfig['hostname'];
+    }
+
+    if(!empty($nodeConfig['ip'])) {
+        $etcdConfig['peer-addr'] = $nodeConfig['ip'] . ':2380';
+    }
+
+    if(!empty($cloudConfig['etcd'])) {
+        $etcdConfig = array_merge($etcdConfig, $cloudConfig['etcd']);
+    }
+
+    if(!empty($nodeConfig['etcd'])) {
+        $etcdConfig = array_merge($etcdConfig, $nodeConfig['etcd']);
+    }
+
+    // construct cloud-config.yml
     if(!array_key_exists('coreos', $cloudConfig)) {
         $cloudConfig['coreos'] = array();
     }
@@ -14,36 +35,22 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
         'command'   => 'start'
         
     );
-
-    $etcdName =
-        !empty($nodeConfig['etcd']['name']) ?
-            $nodeConfig['etcd']['name'] :
-            $nodeConfig['hostname'];
     
-    $etcdAddr =
-        !empty($nodeConfig['etcd']['addr']) ?
-        $nodeConfig['etcd']['addr'] :
-        '127.0.0.1:2379';
+    if(empty($etcdConfig['name'])) {
+        throw new \Exception("Missing etcd name");
+    }
 
-    $etcdPeerAddr =
-        !empty($nodeConfig['etcd']['peer-addr']) ?
-            $nodeConfig['etcd']['peer-addr'] :
-            $nodeConfig['ip'] . ':2380';
+    if(empty($etcdConfig['addr'])) {
+        throw new \Exception("Missing etcd addr");
+    }
 
-    $discovery =
-        !empty($nodeConfig['etcd']['discovery']) ?
-            $nodeConfig['etcd']['discovery'] :
-            $clusterConfig['discovery'];
+    if(empty($etcdConfig['peer-addr'])) {
+        throw new \Exception("Missing etcd peer-addr");
+    }
     
-    
-    $cloudConfig['coreos']['etcd'] = array(
-        'name'      => $etcdName,
-        'discovery' => $discovery,
-        'addr'      => $etcdAddr,
-        'peer-addr' => $etcdPeerAddr
-    );
+    $cloudConfig['coreos']['etcd'] = $etcdConfig;
 
 
-return $cloudConfig;
+    return $cloudConfig;
 
 };
