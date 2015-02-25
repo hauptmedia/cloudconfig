@@ -160,8 +160,6 @@ docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig 
 
 
 ### Testing authentification
- 
-**Please note: in order to activate client authentification in etcd you need to run etcd with the *-ca-file* option**
 
 ```bash
 curl --cert /etc/ssl/etcd/certs/client.crt \
