@@ -50,15 +50,17 @@ curl -sSL http://puppetmaster.example.com:1234/install.sh | sudo sh
 
 ## Securing etcd with TLS
 
-Etcd need specially crafted certificates to function properly. An *openssl.cnf* with all the needed settings is included in this repository.
+Etcd needs specially crafted certificates to function properly. An *openssl.cnf* with all the needed settings is included in this repository.
 
 You can use the provided scripts in *bin* directory to manage your ssl certificates.
 
 ### Create an certificate authority for etcd
 
-Run the create-etcd-ca command with the common name as parameter. 
+Run the *create-etcd-ca* command with the *common name* as parameter.
 
-You need to provide a volume for the */opt/cloudconfig/var* directory. The certificates will be saved in *var/etcd-ca*.
+You need to provide a volume for the */opt/cloudconfig/var* directory.
+
+The certificates will be saved in *var/etcd-ca*.
 
 ```bash
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca ca.etcd.commonname.com
@@ -75,12 +77,15 @@ docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig 
 * Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Server Authentication*.
 
 
+### References
+* https://coreos.com/docs/distributed-configuration/etcd-security/
+* http://blog.skrobul.com/securing_etcd_with_tls/
+* https://github.com/kelseyhightower/etcd-production-setup
+
 ## References on third party websites and the CoreOS documentation
 
 * https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
 * https://coreos.com/docs/cluster-management/setup/mounting-storage/
-* http://blog.skrobul.com/securing_etcd_with_tls/
-* https://coreos.com/docs/distributed-configuration/etcd-security/
 * http://www.g-loaded.eu/2005/11/10/be-your-own-ca/
 * https://coreos.com/docs/launching-containers/building/customizing-docker/
 * https://coreos.com/docs/launching-containers/building/registry-authentication/
