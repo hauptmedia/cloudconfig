@@ -29,9 +29,9 @@ export ETCD_CA_DIR=${CLOUDCONFIG_INSTALL_DIR}/var/etcd-ca
 
 CONFIG_FILE=${CLOUDCONFIG_INSTALL_DIR}/conf/openssl.cnf
 
-KEY_FILE=${ETCD_CA_DIR}/private/${CN}-server.key
-CSR_FILE=${ETCD_CA_DIR}/${CN}-server.csr
-CRT_FILE=${ETCD_CA_DIR}/certs/${CN}-server.crt
+KEY_FILE=${ETCD_CA_DIR}/private/${CN}.key
+CSR_FILE=${ETCD_CA_DIR}/${CN}.csr
+CRT_FILE=${ETCD_CA_DIR}/certs/${CN}.crt
 
 openssl req -config ${CONFIG_FILE} -new -nodes -keyout ${KEY_FILE} -out ${CSR_FILE}
 

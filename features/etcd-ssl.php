@@ -32,8 +32,8 @@ Environment=ETCD_PEER_KEY_FILE=/etc/ssl/etcd/private/server.key'
     $requiredFiles = array(
         $etcdCADir . '/certs/etcd-ca.crt'                             => '/etc/ssl/etcd/certs/etcd-ca.crt',
         
-        $etcdCADir . '/certs/' .      $etcdName . "-server.crt"       => '/etc/ssl/etcd/certs/server.crt',
-        $etcdCADir . '/private/' .    $etcdName . "-server.key"       => '/etc/ssl/etcd/private/server.key',
+        $etcdCADir . '/certs/' .      $etcdName . ".crt"              => '/etc/ssl/etcd/certs/server.crt',
+        $etcdCADir . '/private/' .    $etcdName . ".key"              => '/etc/ssl/etcd/private/server.key',
         
         $etcdCADir . '/certs/' .      $etcdName . "-client.crt"       => '/etc/ssl/etcd/certs/client.crt',
         $etcdCADir . '/private/' .    $etcdName . "-client.key"       => '/etc/ssl/etcd/private/client.key',
