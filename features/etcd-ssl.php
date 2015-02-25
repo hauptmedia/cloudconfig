@@ -1,42 +1,62 @@
 <?php
 return function($clusterConfig, $nodeConfig, $cloudConfig) {
+    // merge config  node <= cluster <= defaults
+    $etcdSslConfig = array(
+        'mode' => 'both'
+    );
 
+    if(!empty($clusterConfig['etcd-ssl'])) {
+        $etcdSslConfig = array_merge($etcdSslConfig, $clusterConfig['etcd-ssl']);
+    }
+
+    if(!empty($nodeConfig['etcd-ssl'])) {
+        $etcdSslConfig = array_merge($etcdSslConfig, $nodeConfig['etcd-ssl']);
+    }
+
+    // construct cloud-config.yml
     if (!array_key_exists('write_files', $cloudConfig)) {
         $cloudConfig['write_files'] = array();
     }
 
-    $etcdName =
-        !empty($nodeConfig['etcd']['name']) ?
-            $nodeConfig['etcd']['name'] :
-            $nodeConfig['hostname'];
-
-
-    $cloudConfig['write_files'][] = array(
-        'path' => '/run/systemd/system/etcd.service.d/30-certificates.conf',
-        'permissions' => '0644',
-        'content' => '
-[Service]
-# Client Env Vars
-Environment=ETCD_CA_FILE=/etc/ssl/etcd/certs/ca.crt
-Environment=ETCD_CERT_FILE=/etc/ssl/etcd/certs/client.crt
-Environment=ETCD_KEY_FILE=/etc/ssl/etcd/private/client.key
-# Peer Env Vars
-Environment=ETCD_PEER_CA_FILE=/etc/ssl/etcd/certs/ca.crt
-Environment=ETCD_PEER_CERT_FILE=/etc/ssl/etcd/certs/server.crt
-Environment=ETCD_PEER_KEY_FILE=/etc/ssl/etcd/private/server.key'
-    );
-
+    if (!empty($nodeConfig['etcd']['name'])) {
+        $etcdName = $nodeConfig['etcd']['name'];
+        
+    } elseif (!empty($nodeConfig['hostname'])) {
+        $etcdName = $nodeConfig['hostname'];
+    }
 
     $etcdCADir = realpath( __DIR__ . '/../var/etcd-ca' );
-    
+
+    $serviceDefinition = 
+        "[Service]\n" .
+        "Environment=ETCD_PEER_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" .
+        "Environment=ETCD_PEER_CERT_FILE=/etc/ssl/etcd/certs/peer.crt\n" .
+        "Environment=ETCD_PEER_KEY_FILE=/etc/ssl/etcd/private/peer.key\n";
+
     $requiredFiles = array(
         $etcdCADir . '/certs/etcd-ca.crt'                             => '/etc/ssl/etcd/certs/ca.crt',
+        $etcdCADir . '/certs/' .      $etcdName . "-peer.crt"              => '/etc/ssl/etcd/certs/peer.crt',
+        $etcdCADir . '/private/' .    $etcdName . "-peer.key"              => '/etc/ssl/etcd/private/peer.key'
+    );
         
-        $etcdCADir . '/certs/' .      $etcdName . ".crt"              => '/etc/ssl/etcd/certs/server.crt',
-        $etcdCADir . '/private/' .    $etcdName . ".key"              => '/etc/ssl/etcd/private/server.key',
-        
-        $etcdCADir . '/certs/' .      $etcdName . "-client.crt"       => '/etc/ssl/etcd/certs/client.crt',
-        $etcdCADir . '/private/' .    $etcdName . "-client.key"       => '/etc/ssl/etcd/private/client.key',
+    if($etcdSslConfig['mode'] == 'both') {
+        $serviceDefinition .= 
+            "Environment=ETCD_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" .
+            "Environment=ETCD_CERT_FILE=/etc/ssl/etcd/certs/server.crt\n" .
+            "Environment=ETCD_KEY_FILE=/etc/ssl/etcd/private/server.key\n";
+
+        $requiredFiles = array_merge($requiredFiles, array(
+            $etcdCADir . '/certs/' .      $etcdName . "-server.crt"              => '/etc/ssl/etcd/certs/server.crt',
+            $etcdCADir . '/private/' .    $etcdName . "-server.key"              => '/etc/ssl/etcd/private/server.key',
+            $etcdCADir . '/certs/' .      $etcdName . "-client.crt"              => '/etc/ssl/etcd/certs/client.crt',
+            $etcdCADir . '/private/' .    $etcdName . "-client.key"              => '/etc/ssl/etcd/private/client.key'
+        ));
+    }
+    
+    $cloudConfig['write_files'][] = array(
+        'path'          => '/run/systemd/system/etcd.service.d/30-certificates.conf',
+        'permissions'   => '0644',
+        'content'       => $serviceDefinition
     );
 
     foreach ($requiredFiles as $sourceFile => $destinationFile) {

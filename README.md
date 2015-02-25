@@ -15,11 +15,11 @@ cluster:
     - fleet
 
   etcd-ssl:
-    - mode: peer-only
+    mode: peer-only
 
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd:
-    - discovery: https://discovery.etcd.io/xyz
+    discovery: https://discovery.etcd.io/xyz
 
   ssh-authorized-keys:
     - ssh-rsa ...
@@ -34,7 +34,6 @@ cluster:
       hostname: coreos-2
       ip: 1.2.3.4
       metadata: datacenter=colo2
-
 ```
 
 ## Example usage

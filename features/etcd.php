@@ -13,8 +13,8 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
         $etcdConfig['peer-addr'] = $nodeConfig['ip'] . ':2380';
     }
 
-    if(!empty($cloudConfig['etcd'])) {
-        $etcdConfig = array_merge($etcdConfig, $cloudConfig['etcd']);
+    if(!empty($clusterConfig['etcd'])) {
+        $etcdConfig = array_merge($etcdConfig, $clusterConfig['etcd']);
     }
 
     if(!empty($nodeConfig['etcd'])) {
