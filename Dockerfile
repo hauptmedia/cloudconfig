@@ -1,5 +1,7 @@
 FROM debian:jessie
 
+ENV CLOUDCONFIG_INSTALL_DIR /opt/cloudconfig
+
 ENV	DEBIAN_FRONTEND noninteractive
 
 #Core OS image from where we extract the coreos-cloudinit tool (used to verify cloudinit files)
@@ -18,15 +20,6 @@ RUN	apt-get update -qq && \
 	apt-get autoremove --yes && \
 	rm -rf /var/lib/{apt,dpkg,cache,log}/
 
-ADD	conf/apache2/puppetmaster.conf /etc/apache2/sites-available/puppetmaster.conf
-
-# configure apache
-RUN	rm -rf /var/www && \
-	a2dissite 000-default && \
-	a2ensite puppetmaster && \
-	a2enmod php5 && \
-	a2enmod rewrite
-
 # extract coreos-cloudinit from CoreOS Image file
 WORKDIR	/tmp
 RUN	curl -L --silent ${COREOS_IMAGE_URL} | zcat | cpio -iv && \
@@ -34,9 +27,32 @@ RUN	curl -L --silent ${COREOS_IMAGE_URL} | zcat | cpio -iv && \
 	cp /tmp/squashfs-root/bin/coreos-cloudinit /usr/local/bin && \
 	rm -rf /tmp/*
 
-ADD	www /var/www
+# configure apache & prepare install dir
+ADD	conf/apache2/cloudconfig.conf /etc/apache2/sites-available/cloudconfig.conf
+RUN	a2dissite 000-default && \
+	a2ensite cloudconfig && \
+	a2enmod php5 && \
+	a2enmod rewrite && \
+	mkdir ${CLOUDCONFIG_INSTALL_DIR}
 
-COPY		docker-entrypoint.sh /usr/local/sbin/docker-entrypoint.sh
+# install composer dependencies
+ADD composer.json   ${CLOUDCONFIG_INSTALL_DIR}/composer.json
+ADD composer.lock   ${CLOUDCONFIG_INSTALL_DIR}/composer.lock
+WORKDIR     ${CLOUDCONFIG_INSTALL_DIR}
+RUN         curl -sS https://getcomposer.org/installer | php && \
+            php composer.phar install && \
+            rm composer.*
+
+# add source files
+ADD	bin             ${CLOUDCONFIG_INSTALL_DIR}/bin
+ADD	conf            ${CLOUDCONFIG_INSTALL_DIR}/conf
+ADD	features        ${CLOUDCONFIG_INSTALL_DIR}/features
+ADD	www             ${CLOUDCONFIG_INSTALL_DIR}/www
+
+ENV PATH ${CLOUDCONFIG_INSTALL_DIR}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+COPY docker-entrypoint.sh /usr/local/sbin/docker-entrypoint.sh
+
 ENTRYPOINT      ["/usr/local/sbin/docker-entrypoint.sh"]
 
 EXPOSE 80

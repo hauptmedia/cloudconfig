@@ -1,0 +1,27 @@
+#!/bin/sh
+
+
+if [ -z $1 ]; then
+    echo Usage: $0 CommonName 1>&2
+    echo 1>&2
+    echo Example: $0 ca.etcd.example.com 1>&2
+    echo 1>&2
+    exit 1
+fi
+
+export CN=$1
+export ETCD_CA_DIR=${CLOUDCONFIG_INSTALL_DIR}/var/etcd-ca
+
+if [ -d ${ETCD_CA_DIR} ]; then
+    echo Directory ${ETCD_CA_DIR} already exists. Aborting! 1>&2
+    exit 1
+fi
+
+mkdir -p ${ETCD_CA_DIR}/private ${ETCD_CA_DIR}/certs ${ETCD_CA_DIR}/newcerts ${ETCD_CA_DIR}/crl
+touch ${ETCD_CA_DIR}/index.txt
+echo '01' > ${ETCD_CA_DIR}/serial
+
+openssl req -config ${CLOUDCONFIG_INSTALL_DIR}/conf/openssl.cnf -new -x509 -extensions v3_ca \
+  -keyout ${ETCD_CA_DIR}/private/${CN}.key -out ${ETCD_CA_DIR}/certs/${CN}.crt
+
+openssl x509 -in ${ETCD_CA_DIR}/certs/${CN}.crt -noout -text

@@ -1,110 +1,73 @@
-HOME                    = .
-RANDFILE                = $ENV::HOME/.rnd
-
-oid_section             = new_oids
-
-[ new_oids ]
-
-tsa_policy1 = 1.2.3.4.1
-tsa_policy2 = 1.2.3.4.5.6
-tsa_policy3 = 1.2.3.4.5.7
+# etcd OpenSSL configuration file.
+SAN = "IP:127.0.0.1"
+dir = ${ENV::ETCD_CA_DIR}
 
 [ ca ]
+default_ca = etcd_ca
 
-[ CA_default ]
+[ etcd_ca ]
+certs            = $dir/certs
+certificate      = $dir/certs/etcd-ca.crt
+crl              = $dir/crl.pem
+crl_dir          = $dir/crl
+crlnumber        = $dir/crlnumber
+database         = $dir/index.txt
+email_in_dn      = no
+new_certs_dir    = $dir/newcerts
+private_key      = $dir/private/etcd-ca.key
+serial           = $dir/serial
+RANDFILE         = $dir/private/.rand
+name_opt         = ca_default
+cert_opt         = ca_default
+default_days     = 3650
+default_crl_days = 30
+default_md       = sha512
+preserve         = no
+policy           = policy_etcd
 
-copy_extensions = copy
-
-policy          = policy_match
-
-[ policy_match ]
-countryName             = match
-stateOrProvinceName     = match
-organizationName        = match
-organizationalUnitName  = optional
-commonName              = supplied
-emailAddress            = optional
-
-[ policy_anything ]
-countryName             = optional
-stateOrProvinceName     = optional
-localityName            = optional
-organizationName        = optional
-organizationalUnitName  = optional
-commonName              = supplied
-emailAddress            = optional
-subjectAltName = optional
+[ policy_etcd ]
+organizationName    = optional
+commonName          = supplied
 
 [ req ]
-default_bits            = 1024
-default_keyfile         = privkey.pem
-distinguished_name      = req_distinguished_name
-attributes              = req_attributes
-
-string_mask = utf8only
+default_bits       = 4096
+default_keyfile    = privkey.pem
+distinguished_name = req_distinguished_name
+attributes         = req_attributes
+x509_extensions    = v3_ca
+string_mask        = utf8only
+req_extensions     = etcd_client
 
 [ req_distinguished_name ]
-countryName                     = Country Name (2 letter code)
-countryName_default             = US
-countryName_min                 = 2
-countryName_max                 = 2
-
-stateOrProvinceName             = State or Province Name (full name)
-stateOrProvinceName_default     = Texas
-
-localityName                    = Locality Name (eg, city)
-localityName_default = San Antonio
-
-0.organizationName              = Organization Name (eg, company)
-0.organizationName_default      = YourCompany
-
-organizationalUnitName          = Organizational Unit Name (eg, section)
-organizationalUnitName_default  = Strategic NetOps
-
-commonName                      = Common Name (IP address of the node)
-commonName_max                  = 64
-
-emailAddress                    = Email Address
-emailAddress_default            = marek.skrobacki@example.com
-emailAddress_max                = 64
+countryName                = Country Name (2 letter code)
+countryName_default        = US
+countryName_min            = 2
+countryName_max            = 2
+commonName                 = Common Name (FQDN)
+commonName_default         = ${ENV::CN}
+0.organizationName         = Organization Name (eg, company)
+0.organizationName_default = etcd-ca
 
 [ req_attributes ]
-challengePassword               = A challenge password
-challengePassword_min           = 4
-challengePassword_max           = 20
-unstructuredName                = An optional company name
-
-[ usr_cert ]
-basicConstraints=CA:FALSE
-nsComment                       = "OpenSSL Generated Certificate"
-subjectKeyIdentifier=hash
-authorityKeyIdentifier=keyid,issuer
-
-[ v3_req ]
-subjectAltName          = $ENV::SAN
-basicConstraints = CA:FALSE
-keyUsage = nonRepudiation, digitalSignature, keyEncipherment
-
-[ ssl_client ]
-extendedKeyUsage = clientAuth,serverAuth
-basicConstraints=CA:FALSE
-nsComment                       = "OpenSSL Generated Certificate"
-subjectKeyIdentifier=hash
-authorityKeyIdentifier=keyid,issuer
 
 [ v3_ca ]
-subjectKeyIdentifier=hash
-extendedKeyUsage = clientAuth
-authorityKeyIdentifier=keyid:always,issuer
-basicConstraints = CA:true
-subjectAltName = $ENV::SAN
+basicConstraints       = CA:true
+keyUsage               = keyCertSign,cRLSign
+subjectKeyIdentifier   = hash
 
-[ crl_ext ]
-authorityKeyIdentifier=keyid:always
+[ etcd_client ]
+basicConstraints       = CA:FALSE
+extendedKeyUsage       = clientAuth
+keyUsage               = digitalSignature, keyEncipherment
 
-[ proxy_cert_ext ]
-basicConstraints=CA:FALSE
-nsComment                       = "OpenSSL Generated Certificate"
-subjectKeyIdentifier=hash
-authorityKeyIdentifier=keyid,issuer
-proxyCertInfo=critical,language:id-ppl-anyLanguage,pathlen:3,policy:foo
+[ etcd_peer ]
+basicConstraints       = CA:FALSE
+extendedKeyUsage       = clientAuth, serverAuth
+keyUsage               = digitalSignature, keyEncipherment
+subjectAltName         = ${ENV::SAN}
+
+[ etcd_server ]
+basicConstraints       = CA:FALSE
+extendedKeyUsage       = clientAuth, serverAuth
+keyUsage               = digitalSignature, keyEncipherment
+subjectAltName         = ${ENV::SAN}
