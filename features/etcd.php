@@ -23,12 +23,12 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     $etcdAddr =
         !empty($nodeConfig['etcd']['addr']) ?
         $nodeConfig['etcd']['addr'] :
-        $nodeConfig['ip'] . ':4001';
+        '127.0.0.1:2379';
 
     $etcdPeerAddr =
         !empty($nodeConfig['etcd']['peer-addr']) ?
             $nodeConfig['etcd']['peer-addr'] :
-            $nodeConfig['ip'] . ':7001';
+            $nodeConfig['ip'] . ':2380';
 
     $discovery =
         !empty($nodeConfig['etcd']['discovery']) ?
