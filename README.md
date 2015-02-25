@@ -46,7 +46,7 @@ You might want to copy the example *conf/cluster-config.yml* to your var/ direct
 
 
 ```bash
-docker run -d -p 1234:80 -v $(pwd)/var:/opt/cloudconfig/var -e BASE_URL=http://puppetmaster.example.com:1234 hauptmedia/puppetmaster
+docker run -d -p 1234:80 -v $(pwd)/var:/opt/cloudconfig/var -e BASE_URL=http://cloudconfig.example.com:1234 hauptmedia/cloudconfig
 ```
 
 ### Cluster Node usage
