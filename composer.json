@@ -1,5 +1,5 @@
 {
-    "name": "hauptmedia/puppetmaster",
+    "name": "hauptmedia/cloudconfig",
     "require": {
         "symfony/yaml": "~2.6"
     },
