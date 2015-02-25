@@ -1,11 +1,11 @@
 #!/bin/sh
 
-if [ -z ${BASE_URL} ]; then
-	echo "No BASE_URL was specified! Aborting!" 1>&2
-	exit 1
-fi
-
 if [ -z $1 ]; then
+    if [ -z ${BASE_URL} ]; then
+        echo "No BASE_URL was specified! Aborting!" 1>&2
+        exit 1
+    fi
+
     echo ""
     echo ""
     echo "You may now setup your nodes with the following command"
