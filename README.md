@@ -56,14 +56,12 @@ You can use the provided scripts in *bin* directory to manage your ssl certifica
 
 ### Create an certificate authority for etcd
 
-Run the *create-etcd-ca* command with the *common name* as parameter.
-
-You need to provide a volume for the */opt/cloudconfig/var* directory.
+Run the *create-etcd-ca* command and provide a volume for the */opt/cloudconfig/var* directory.
 
 The certificates will be saved in *var/etcd-ca*.
 
 ```bash
-docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca ca.etcd.commonname.com
+docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-create-ca
 ```
 
 ### Certificate requirements in detail
@@ -81,6 +79,7 @@ docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig 
 * https://coreos.com/docs/distributed-configuration/etcd-security/
 * http://blog.skrobul.com/securing_etcd_with_tls/
 * https://github.com/kelseyhightower/etcd-production-setup
+* http://www.g-loaded.eu/2005/11/10/be-your-own-ca/
 
 ## References on third party websites and the CoreOS documentation
 
