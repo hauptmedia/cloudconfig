@@ -4,8 +4,12 @@ cluster:
     - etcd-ssl
     - fleet
 
+  etcd-ssl:
+    - mode: peer-only
+    
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
-  discovery: https://discovery.etcd.io/xyz
+  etcd:
+    - discovery: https://discovery.etcd.io/xyz
 
   ssh-authorized-keys:
     - ssh-rsa ...

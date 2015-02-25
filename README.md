@@ -11,10 +11,16 @@ You can setup your cluster nodes in a yaml based configuration file which must b
 cluster:
   features:
     - etcd
+    - etcd-ssl
     - fleet
-      
-  discovery: https://discovery.etcd.io/xyz
-  
+
+  etcd-ssl:
+    - mode: peer-only
+
+  # generate a new token for each unique cluster from https://discovery.etcd.io/new
+  etcd:
+    - discovery: https://discovery.etcd.io/xyz
+
   ssh-authorized-keys:
     - ssh-rsa ...
 
@@ -28,6 +34,7 @@ cluster:
       hostname: coreos-2
       ip: 1.2.3.4
       metadata: datacenter=colo2
+
 ```
 
 ## Example usage
@@ -62,31 +69,35 @@ curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 
 Run the etcd service
 
-#### per node config options
+#### configuration options
 * *node[etcd][name]* - The node name (defaults to *node[hostname]*)
-* *node[etcd][addr]* - The advertised public hostname:port for client communication (defaults to *node[ip]:4001*)
-* *node[etcd][peer-addr]* - The advertised public hostname:port for server communication (defaults to *node[ip]:7001*)
-* *node[etcd][discovery]* - A URL to use for discovering the peer list (defaults to *cluster[discovery]*)
+* *node[etcd][addr]* - The advertised public hostname:port for client communication (defaults to *127.0.0.1:2379*)
+* *node[etcd][peer-addr]* - The advertised public hostname:port for server communication (defaults to *node[ip]:2380*)
+* *cluster[etcd][discovery]* *node[etcd][discovery]* - A URL to use for discovering the peer list (defaults to *cluster[discovery]*)
 
 #### References
 * https://coreos.com/docs/distributed-configuration/etcd-configuration/
 
 ### etcd-ssl
 
-Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and a 
-client & server cert for eatch etcd instance.
+Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and client, 
+server and peer certs for each cluster node.
 
-**The *CommonName* must metch the etcd name and the IP addresses etcd uses must be integrated into the certificate.**
+**The IP addresses used by etcd must be integrated into the certificate.**
 
 ```bash
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-peer-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-client-cert 1.etcd.example.com
 ````
 
+#### configuration options
+* *cluster[etcd-ssl][mode]* *node[etcd-ssl][mode]* - both | peer-only - If set to both secure both peer and client connector. If set to peer-only only secure the peer connector
 
 #### References
 * https://coreos.com/docs/distributed-configuration/customize-etcd-unit/
+* https://coreos.com/docs/distributed-configuration/etcd-security/
 
 ### fleet
 
@@ -141,17 +152,34 @@ The certificates will be saved in *var/etcd-ca*.
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-client-cert etcd-client.example.com
 ```
 
+
+### Testing authentification
+ 
+Check if all machines are returning the same leader using:
+
+```bash
+curl --cert /etc/ssl/etcd/certs/client.crt \
+     --cacert /etc/ssl/etcd/certs/ca.crt  \
+     --key /etc/ssl/etcd/private/client.key \
+       https://127.0.0.1:2379/v2/stats/leader
+```
+
+
 ### Using client auth with curl
 
 **Please note: in order to activate client authentification in etcd you need to run etcd with the *-ca-file* option**
 
 ```bash
-curl -XPUT -v -L https://127.0.0.1:4001/v2/keys/foo -d value=bar \
-  --key etc-client.example.com.key \
-  --cert etc-client.example.com.crt \
-  --cacert etcd-ca.crt
+curl --cert /etc/ssl/etcd/certs/client.crt \
+     --cacert /etc/ssl/etcd/certs/ca.crt  \
+     --key /etc/ssl/etcd/private/client.key \
+     -v https://127.0.0.1:2379/v2/stats/leader
+       
+curl --cert /etc/ssl/etcd/certs/client.crt \
+     --cacert /etc/ssl/etcd/certs/ca.crt  \
+     --key /etc/ssl/etcd/private/client.key -v \
+     -XPUT -v -L https://127.0.0.1:2379/v2/keys/foo -d value=bar
 ```
-  
 
 ### Certificate requirements in detail
 
