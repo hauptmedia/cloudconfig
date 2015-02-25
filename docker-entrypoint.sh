@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ -z $1 ]; then
+if [ "$1" = "/usr/sbin/apache2ctl" ]; then
     if [ -z ${BASE_URL} ]; then
         echo "No BASE_URL was specified! Aborting!" 1>&2
         exit 1
