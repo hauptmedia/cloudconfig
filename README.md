@@ -67,7 +67,7 @@ Run the etcd service
 * *node[etcd][name]* - The node name (defaults to *node[hostname]*)
 * *node[etcd][addr]* - The advertised public hostname:port for client communication (defaults to *127.0.0.1:2379*)
 * *node[etcd][peer-addr]* - The advertised public hostname:port for server communication (defaults to *node[ip]:2380*)
-* *cluster[etcd][discovery]* *node[etcd][discovery]* - A URL to use for discovering the peer list (defaults to *cluster[discovery]*)
+* *cluster[etcd][discovery]* or *node[etcd][discovery]* - A URL to use for discovering the peer list (optional)
 
 #### References
 * https://coreos.com/docs/distributed-configuration/etcd-configuration/
@@ -99,7 +99,7 @@ docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig 
 ````
 
 #### configuration options
-* *cluster[etcd-ssl][mode]* *node[etcd-ssl][mode]* - both | peer-only - If set to both secure both peer and client connector. If set to peer-only only secure the peer connector
+* *cluster[etcd-ssl][mode]* or *node[etcd-ssl][mode]* - both | peer-only - If set to both secure both peer and client connector. If set to peer-only only secure the peer connector
 
 #### References
 * https://coreos.com/docs/distributed-configuration/customize-etcd-unit/
