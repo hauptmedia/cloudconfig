@@ -54,15 +54,27 @@ Etcd needs specially crafted certificates to function properly. An *openssl.cnf*
 
 You can use the provided scripts in *bin* directory to manage your ssl certificates.
 
-### Create an certificate authority for etcd
+### How to create a certificate authority for etcd
 
-Run the *create-etcd-ca* command and provide a volume for the */opt/cloudconfig/var* directory.
+Run the *create-etcd-ca* script and provide a volume for the */opt/cloudconfig/var* directory.
 
 The certificates will be saved in *var/etcd-ca*.
 
 ```bash
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-create-ca
 ```
+
+
+### How to create a client certificate for etcd
+
+Run the *create-client-cert* script with a *common name* and provide a volume for the */opt/cloudconfig/var* directory.
+
+The certificates will be saved in *var/etcd-ca*.
+
+```bash
+docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-create-client-cert etcd-client.example.com
+```
+
 
 ### Certificate requirements in detail
 

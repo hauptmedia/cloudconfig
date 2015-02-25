@@ -1,0 +1,37 @@
+#!/bin/sh
+
+if [ -z $1 ]; then
+    echo Usage: $0 CommonName 1>&2
+    echo 1>&2
+    echo Example: $0 client.example.com 1>&2
+    echo 1>&2
+    exit 1
+fi
+
+export CN=$1
+unset SAN
+
+export ETCD_CA_DIR=${CLOUDCONFIG_INSTALL_DIR}/var/etcd-ca
+
+openssl req -config ${CLOUDCONFIG_INSTALL_DIR}/conf/openssl.cnf -new -nodes \
+  -keyout ${ETCD_CA_DIR}/private/${CN}.key -out ${ETCD_CA_DIR}/${CN}.csr
+
+if [ $? -ne 0 ];then
+    echo "Could not create certificate signing request. Aborting!" 1>&2
+    exit 1
+fi
+
+openssl ca -config ${CLOUDCONFIG_INSTALL_DIR}/conf/openssl.cnf -extensions etcd_client \
+  -out ${ETCD_CA_DIR}/certs/${CN}.crt -infiles ${ETCD_CA_DIR}/${CN}.csr
+  
+  
+if [ $? -ne 0 ];then
+    echo "Could not create certificate. Aborting!" 1>&2
+    exit 1
+fi
+
+echo Created client certificate
+echo
+echo Created private key in ${ETCD_CA_DIR}/private/${CN}.key
+echo Created certificate in ${ETCD_CA_DIR}/certs/${CN}.crt
+
