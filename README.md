@@ -29,7 +29,10 @@ cluster:
     - mac: c8:60:00:cc:xx:8d
       hostname: coreos-1
       ip: 11.22.33.44
-      metadata: datacenter=colo1
+
+      fleet:
+        metadata: datacenter=colo1
+
       update:
         group: alpha
 
@@ -37,7 +40,9 @@ cluster:
     - mac: c8:60:00:bb:aa:91
       hostname: coreos-2
       ip: 1.2.3.4
-      metadata: datacenter=colo2
+
+      fleet:
+        metadata: datacenter=colo2
 ```
 
 ## Example usage
