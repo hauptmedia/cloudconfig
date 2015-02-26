@@ -39,8 +39,12 @@ try {
     $cloudConfig = array();
     $cloudConfig["hostname"]            = $nodeConfig["hostname"];
     $cloudConfig["ssh_authorized_keys"] = $clusterConfig["ssh-authorized-keys"];
-
-    foreach($clusterConfig["features"] as $feature) {
+    
+    $defaultFeatures                    = array('update');
+    $features                           = $clusterConfig["features"];
+    $features                           = array_merge($features, $defaultFeatures);
+    
+    foreach($features as $feature) {
         if(!file_exists("../features/" . $feature . ".php")) {
             throw new \Exception("Unkwnown feature: " . $feature);
         }
