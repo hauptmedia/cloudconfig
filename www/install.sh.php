@@ -2,7 +2,6 @@
 header('Content-Type: text/plain');
 ?>
 #!/bin/sh
-COREOS_CHANNEL="alpha"
 COREOS_INSTALL_DEV=/dev/sda
 
 BASE_URL="<?=getenv('BASE_URL')?>"
@@ -48,11 +47,15 @@ fi
 
 
 curl --output ${TMP_FILE} --silent "${QUERY_URL}"
+curl --output ${TMP_FILE}.sh --silent "${QUERY_URL}&format=sh"
 
-if [ ! -f ${TMP_FILE} ]; then
+if [ ! -f ${TMP_FILE} ] || [ ! -f ${TMP_FILE}.sh ]; then
 	echo Could not download cloud-config.yml file to ${TMP_FILE}. Aborting! 1>&2
 	exit 1
 fi
+
+# source cloud-config.yml as shell variables
+. ${TMP_FILE}.sh
 
 if [ ! -z $IS_COREOS ]; then
 	coreos-cloudinit -validate --from-file=${TMP_FILE}
@@ -79,7 +82,7 @@ if [ -z $IS_COREOS ]; then
 
 	curl -o coreos-install https://raw.githubusercontent.com/coreos/init/master/bin/coreos-install >/dev/null 2>&1
 	chmod +x coreos-install
-	./coreos-install -d ${COREOS_INSTALL_DEV} -C ${COREOS_CHANNEL} -c ${TMP_FILE} 
+	./coreos-install -d ${COREOS_INSTALL_DEV} -C ${COREOS_UPDATE_GROUP} -c ${TMP_FILE}
 
 else
 	echo "Updating cloud-config.yml in /var/lib/coreos-install/user_data"

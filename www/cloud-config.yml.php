@@ -75,10 +75,36 @@ try {
 	exit;
 }
 
-
-
 header("Content-Type: text/plain");
-print($cloudConfigFileContent);
+
+if(array_key_exists('format', $_GET) && $_GET['format'] == 'sh') {
+    function array_flatten($array) {
+        $return = array();
+
+        foreach ($array as $key => $value) {
+            if (is_array($value)){
+                
+                foreach (array_flatten($value) as $subKey => $subValue) {
+                 $return[$key . "_" . $subKey] = $subValue;
+                    
+                }
+            }
+            else {
+                $return[$key] = $value;
+            }
+        }
+        return $return;
+
+    }
+
+    foreach(array_flatten($cloudConfig) as $key => $value) {
+        printf("%s=\"%s\"\n", str_replace("-", "_", strtoupper($key)), addslashes($value));
+    }
+    
+} else {
+    print($cloudConfigFileContent);    
+}
+
 
 ?>
 
