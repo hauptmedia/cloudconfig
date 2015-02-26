@@ -1,9 +1,7 @@
 <?php
 return function($clusterConfig, $nodeConfig, $cloudConfig) {
     // merge config  node <= cluster <= defaults
-    $etcdSslConfig = array(
-        'mode' => 'both'
-    );
+    $etcdSslConfig = array();
 
     if(!empty($clusterConfig['etcd-ssl'])) {
         $etcdSslConfig = array_merge($etcdSslConfig, $clusterConfig['etcd-ssl']);
