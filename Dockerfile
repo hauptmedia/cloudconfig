@@ -24,8 +24,9 @@ RUN	apt-get update -qq && \
 WORKDIR	/tmp
 RUN	curl -L --silent ${COREOS_IMAGE_URL} | zcat | cpio -iv && \
 	unsquashfs usr.squashfs && \
-	cp /tmp/squashfs-root/bin/coreos-cloudinit /usr/local/bin && \
-	rm -rf /tmp/*
+	cp squashfs-root/bin/coreos-cloudinit /usr/local/bin && \
+    cp squashfs-root/bin/fleetctl /usr/local/bin && \
+    rm -rf /tmp/*
 
 # configure apache & prepare install dir
 ADD	conf/apache2/cloudconfig.conf /etc/apache2/sites-available/cloudconfig.conf

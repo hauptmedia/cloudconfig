@@ -125,7 +125,21 @@ docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig 
 
 Run the fleet service. Automaticly configures itself for etcd-ssl if etcd-ssl is enabled.
 
-#### Use fleetctl with SSL/TLS configuration
+#### Use fleetctl with SSL/TLS configuration shipped with this image
+
+```bash
+docker run -i -t --rm \
+-v $(pwd):/opt/cloudconfig/var \
+hauptmedia/cloudconfig \
+fleetctl \
+--cert-file=/opt/cloudconfig/var/etcd-ca/certs/coreos-1-client.crt \
+--key-file=/opt/cloudconfig/var/etcd-ca/private/coreos-1-client.key \
+--ca-file=/opt/cloudconfig/var/etcd-ca/certs/etcd-ca.crt \
+--endpoint=https://public-ip-of-etcd:2379 \
+list-machines
+````
+
+#### Use fleetctl with SSL/TLS configuration on a coreos-node
 
 ```bash
 fleetctl \
@@ -135,8 +149,10 @@ fleetctl \
 --endpoint=https://127.0.0.1:2379 \
 list-machines
 ````
+
 #### References
 * https://github.com/coreos/fleet/blob/master/Documentation/deployment-and-configuration.md#configuration
+* https://coreos.com/docs/launching-containers/launching/launching-containers-fleet/
 
 ### ephemeral-drive
 
@@ -233,7 +249,6 @@ curl --cert /etc/ssl/etcd/certs/client.crt \
 
 ## References on third party websites and the CoreOS documentation
 
-* https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
 * https://coreos.com/docs/launching-containers/building/customizing-docker/
 * https://coreos.com/docs/launching-containers/building/registry-authentication/
 
