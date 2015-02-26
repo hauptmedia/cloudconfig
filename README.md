@@ -81,7 +81,7 @@ Run the etcd service
 
 ### update
 
-Configures the update strategy on a cluster or node level.
+Configures the update strategy on a cluster or node level. This feature is always enabled.
 
 #### configuration options
 * `cluster[update][reboot-strategy]` `node[update][reboot-strategy]` - reboot | etcd-lock | best-effort | off (defaults to off)
