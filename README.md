@@ -24,11 +24,18 @@ cluster:
   ssh-authorized-keys:
     - ssh-rsa ...
 
+  update:
+    reboot-strategy: off
+    group: stable
+
   nodes:
     - mac: c8:60:00:cc:xx:8d
       hostname: coreos-1
       ip: 11.22.33.44
       metadata: datacenter=colo1
+      update:
+        group: alpha
+
 
     - mac: c8:60:00:bb:aa:91
       hostname: coreos-2
@@ -64,13 +71,26 @@ curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 Run the etcd service
 
 #### configuration options
-* *node[etcd][name]* - The node name (defaults to *node[hostname]*)
-* *node[etcd][addr]* - The advertised public hostname:port for client communication (defaults to *node[ip]:2379*)
-* *node[etcd][peer-addr]* - The advertised public hostname:port for server communication (defaults to *node[ip]:2380*)
-* *cluster[etcd][discovery]* or *node[etcd][discovery]* - A URL to use for discovering the peer list (optional)
+* `node[etcd][name]` - The node name (defaults to `node[hostname]`)
+* `node[etcd][addr]` - The advertised public hostname:port for client communication (defaults to `node[ip]:2379`)
+* `node[etcd][peer-addr]` - The advertised public hostname:port for server communication (defaults to `node[ip]:2380`)
+* `cluster[etcd][discovery]` `node[etcd][discovery]` - A URL to use for discovering the peer list (optional)
 
 #### References
 * https://coreos.com/docs/distributed-configuration/etcd-configuration/
+
+### update
+
+Configures the update strategy on a cluster or node level.
+
+#### configuration options
+* `cluster[update][reboot-strategy]` `node[update][reboot-strategy]` - reboot | etcd-lock | best-effort | off (defaults to off)
+* `cluster[update][group]` `node[update][group]` - master | alpha | beta | stable (defaults to stable)
+* `cluster[update][server]` `node[update][server]` - location of the CoreUpdate server
+
+#### References
+* https://coreos.com/docs/cluster-management/setup/update-strategies/
+* https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
 
 ### etcd-ssl
 
@@ -79,6 +99,11 @@ server and/or peer certs for each cluster node.
 
 **The IP addresses used by etcd must be integrated into the certificate.**
 
+#### configuration options
+* `cluster[etcd-ssl][mode]` `node[etcd-ssl][mode]`- both | peer-only - If set to both secure both peer and client connector. If set to peer-only only secure the peer connector
+
+
+#### generating the certificates
 Create a certificate authority (once)
 
 ```bash
@@ -97,9 +122,6 @@ If you run mode: both you need also a server and client certificate
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-client-cert 1.etcd.example.com
 ````
-
-#### configuration options
-* *cluster[etcd-ssl][mode]* or *node[etcd-ssl][mode]* - both | peer-only - If set to both secure both peer and client connector. If set to peer-only only secure the peer connector
 
 #### References
 * https://coreos.com/docs/distributed-configuration/customize-etcd-unit/
