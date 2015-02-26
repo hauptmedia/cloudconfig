@@ -61,6 +61,25 @@ docker run -d -p 1234:80 \
 hauptmedia/cloudconfig
 ```
 
+You can also run the provisioning service on your local machine and provide connectivity to it via a reverse ssh tunnel.
+
+```bash
+# override the BASE_URL so that the host can use the provided reverse ssh tunnel on 127.0.0.1:8080 to reach this service
+# you can also run it in interactive mode and inspect the log files on stdout
+
+docker run -i -t --rm 8080:80 \
+-v $(pwd):/opt/cloudconfig/var \
+-e BASE_URL=http://127.0.0.1:8080 \
+hauptmedia/cloudconfig
+```
+
+```bash
+ssh -R8080:127.0.0.1:8080 core@host
+
+#or for boot2docker for example
+ssh -R8080:192.168.59.103:8080 core@host
+```
+
 ### Cluster Node usage
 
 Run on CoreOS hosts to update cloud-config.yml or on new (bare metal hosts) to install CoreOS with the provisioned cloud-config.yml
