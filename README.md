@@ -13,7 +13,7 @@ cluster:
     - etcd
     - etcd-ssl
     - fleet
-    
+
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd:
     discovery: https://discovery.etcd.io/xyz

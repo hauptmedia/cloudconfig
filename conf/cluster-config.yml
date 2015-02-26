@@ -4,9 +4,6 @@ cluster:
     - etcd-ssl
     - fleet
 
-  etcd-ssl:
-    mode: both
-    
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd:
     discovery: https://discovery.etcd.io/xyz
