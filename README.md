@@ -163,13 +163,15 @@ Run the fleet service. Automaticly configures itself for etcd-ssl if etcd-ssl is
 
 #### Use fleetctl with SSL/TLS configuration shipped with this image
 
+You should create your own client ssl certificate as described in the "Creating a client certificate for etcd" section.
+
 ```bash
 docker run -i -t --rm \
 -v $(pwd):/opt/cloudconfig/var \
 hauptmedia/cloudconfig \
 fleetctl \
---cert-file=/opt/cloudconfig/var/etcd-ca/certs/coreos-1-client.crt \
---key-file=/opt/cloudconfig/var/etcd-ca/private/coreos-1-client.key \
+--cert-file=/opt/cloudconfig/var/etcd-ca/certs/fleetctl-client.crt \
+--key-file=/opt/cloudconfig/var/etcd-ca/private/fleetctl-client.key \
 --ca-file=/opt/cloudconfig/var/etcd-ca/certs/etcd-ca.crt \
 --endpoint=https://public-ip-of-etcd:2379 \
 list-machines
@@ -213,7 +215,10 @@ Run the *create-etcd-ca* script and provide a volume for the */opt/cloudconfig/v
 The certificates will be saved in *var/etcd-ca*.
 
 ```bash
-docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca
+docker run -i -t --rm \
+-v $(pwd):/opt/cloudconfig/var \
+hauptmedia/cloudconfig \
+create-etcd-ca
 ```
 
 ### Creating a server or peer certificate for etcd
@@ -246,7 +251,7 @@ The certificates will be saved in *var/etcd-ca*.
 
 ```bash
 docker run -i -t --rm \
--v $(pwd)/var:/opt/cloudconfig/var \
+-v $(pwd):/opt/cloudconfig/var \
 hauptmedia/cloudconfig \
 create-etcd-client-cert etcd-client.example.com
 ```
