@@ -55,7 +55,7 @@ try {
 
     $dumper = new Dumper();
     $cloudConfigFileContent = "#cloud-config\n";
-    $cloudConfigFileContent .= $dumper->dump($cloudConfig, 4);
+    $cloudConfigFileContent .= $dumper->dump($cloudConfig, 6);
 
     //Validate generated file with coreos-cloudinit
     $tmpFileName = tempnam("/tmp", "cloud-config.yml");
