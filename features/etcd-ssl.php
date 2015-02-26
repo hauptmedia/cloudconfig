@@ -31,28 +31,22 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
         "[Service]\n" .
         "Environment=ETCD_PEER_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" .
         "Environment=ETCD_PEER_CERT_FILE=/etc/ssl/etcd/certs/peer.crt\n" .
-        "Environment=ETCD_PEER_KEY_FILE=/etc/ssl/etcd/private/peer.key\n";
+        "Environment=ETCD_PEER_KEY_FILE=/etc/ssl/etcd/private/peer.key\n" .
+        "Environment=ETCD_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" .
+        "Environment=ETCD_CERT_FILE=/etc/ssl/etcd/certs/server.crt\n" .
+        "Environment=ETCD_KEY_FILE=/etc/ssl/etcd/private/server.key\n";
 
     $requiredFiles = array(
         $etcdCADir . '/certs/etcd-ca.crt'                             => '/etc/ssl/etcd/certs/ca.crt',
         $etcdCADir . '/certs/' .      $etcdName . "-peer.crt"              => '/etc/ssl/etcd/certs/peer.crt',
-        $etcdCADir . '/private/' .    $etcdName . "-peer.key"              => '/etc/ssl/etcd/private/peer.key'
+        $etcdCADir . '/private/' .    $etcdName . "-peer.key"              => '/etc/ssl/etcd/private/peer.key',
+        $etcdCADir . '/certs/' .      $etcdName . "-server.crt"              => '/etc/ssl/etcd/certs/server.crt',
+        $etcdCADir . '/private/' .    $etcdName . "-server.key"              => '/etc/ssl/etcd/private/server.key',
+        $etcdCADir . '/certs/' .      $etcdName . "-client.crt"              => '/etc/ssl/etcd/certs/client.crt',
+        $etcdCADir . '/private/' .    $etcdName . "-client.key"              => '/etc/ssl/etcd/private/client.key'
     );
         
-    if($etcdSslConfig['mode'] == 'both') {
-        $serviceDefinition .= 
-            "Environment=ETCD_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" .
-            "Environment=ETCD_CERT_FILE=/etc/ssl/etcd/certs/server.crt\n" .
-            "Environment=ETCD_KEY_FILE=/etc/ssl/etcd/private/server.key\n";
 
-        $requiredFiles = array_merge($requiredFiles, array(
-            $etcdCADir . '/certs/' .      $etcdName . "-server.crt"              => '/etc/ssl/etcd/certs/server.crt',
-            $etcdCADir . '/private/' .    $etcdName . "-server.key"              => '/etc/ssl/etcd/private/server.key',
-            $etcdCADir . '/certs/' .      $etcdName . "-client.crt"              => '/etc/ssl/etcd/certs/client.crt',
-            $etcdCADir . '/private/' .    $etcdName . "-client.key"              => '/etc/ssl/etcd/private/client.key'
-        ));
-    }
-    
     $cloudConfig['write_files'][] = array(
         'path'          => '/run/systemd/system/etcd.service.d/30-certificates.conf',
         'permissions'   => '0644',

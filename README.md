@@ -13,10 +13,7 @@ cluster:
     - etcd
     - etcd-ssl
     - fleet
-
-  etcd-ssl:
-    mode: both
-
+    
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd:
     discovery: https://discovery.etcd.io/xyz
@@ -90,18 +87,15 @@ Configures the update strategy on a cluster or node level. This feature is alway
 
 #### References
 * https://coreos.com/docs/cluster-management/setup/update-strategies/
+* https://coreos.com/docs/cluster-management/setup/switching-channels/
 * https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
 
 ### etcd-ssl
 
 Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and client, 
-server and/or peer certs for each cluster node.
+server and peer certs for each cluster node.
 
 **The IP addresses used by etcd must be integrated into the certificate.**
-
-#### configuration options
-* `cluster[etcd-ssl][mode]` `node[etcd-ssl][mode]`- both | peer-only - If set to both secure both peer and client connector. If set to peer-only only secure the peer connector
-
 
 #### generating the certificates
 Create a certificate authority (once)
@@ -110,15 +104,10 @@ Create a certificate authority (once)
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca
 ````
 
-For mode: peer-only only a peer certificate is required
+For each node generate a server, peer and client certificate
 
 ```bash
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-peer-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
-````
-
-If you run mode: both you need also a server and client certificate
-
-```bash
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-client-cert 1.etcd.example.com
 ````
