@@ -118,7 +118,20 @@ docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig 
 
 ### fleet
 
-Run the fleet service
+Run the fleet service. Automaticly configures itself for etcd-ssl if etcd-ssl is enabled.
+
+#### Use fleetctl with SSL/TLS configuration
+
+```bash
+fleetctl \
+--cert-file=/etc/ssl/etcd/certs/client.crt \
+--key-file=/etc/ssl/etcd/private/client.key \
+--ca-file=/etc/ssl/etcd/certs/ca.crt \
+--endpoint=https://127.0.0.1:2379 \
+list-machines
+````
+#### References
+* https://github.com/coreos/fleet/blob/master/Documentation/deployment-and-configuration.md#configuration
 
 ### ephemeral-drive
 
