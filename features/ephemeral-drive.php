@@ -19,7 +19,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
             "Type=oneshot\n" .
             "RemainAfterExit=yes\n" .
             "ExecStart=/usr/sbin/wipefs -f /dev/sdb\n" .
-            "ExecStart=/usr/sbin/mke2fs -q -t ext4 -b 4096 -i 4096 -I 128 /dev/sdb'\n"
+            "ExecStart=/usr/sbin/mke2fs -q -t ext4 -b 4096 -i 4096 -I 128 /dev/sdb\n"
         );
 
     $cloudConfig['coreos']['units'][] = array(
