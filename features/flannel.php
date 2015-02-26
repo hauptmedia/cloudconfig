@@ -74,6 +74,10 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
         $flannelJsonConfig["Backend"] = array(
             "Type"  => "vxlan"
         );
+    } elseif($flannelConfig['backend_type'] == 'udp') {
+        $flannelJsonConfig["Backend"] = array(
+            "Type"  => "udp"
+        );
     }
     
     unset($flannelConfig['network']);

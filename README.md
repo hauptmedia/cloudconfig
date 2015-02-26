@@ -194,7 +194,15 @@ list-machines
 
 ### flannel
 
-Starts flanneld service. Will be automatically configures for etcd ssl access if etcd-ssl was enabled
+Starts flanneld service. Will be automatically configured for etcd ssl access if etcd-ssl was enabled.
+It will also automatically write the specified network settings in etcd.
+
+#### configuration options
+* `cluster[flannel][network]` `node[flannel][network]`
+* `cluster[flannel][subnet_len]` `node[flannel][subnet_len]`
+* `cluster[flannel][subnet_min]` `node[flannel][subnet_min]`
+* `cluster[flannel][subnet_max]` `node[flannel][subnet_max]`
+* `cluster[flannel][backend_type]` `node[flannel][backend_type]` - vxlan | udp - defaults to vxlan
 
 #### References
 * https://coreos.com/docs/cluster-management/setup/flannel-config/
