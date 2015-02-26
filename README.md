@@ -192,6 +192,14 @@ list-machines
 * https://github.com/coreos/fleet/blob/master/Documentation/deployment-and-configuration.md#configuration
 * https://coreos.com/docs/launching-containers/launching/launching-containers-fleet/
 
+### flannel
+
+Starts flanneld service. Will be automatically configures for etcd ssl access if etcd-ssl was enabled
+
+#### References
+* https://coreos.com/docs/cluster-management/setup/flannel-config/
+* https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
+
 ### ephemeral-drive
 
 Mounts an additional ephemeral drive to a specified mount point
