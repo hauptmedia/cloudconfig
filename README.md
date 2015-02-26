@@ -106,15 +106,29 @@ server and peer certs for each cluster node.
 Create a certificate authority (once)
 
 ```bash
-docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca
+docker run -i -t --rm \
+-v $(pwd):/opt/cloudconfig/var \
+hauptmedia/cloudconfig \
+create-etcd-ca
 ````
 
 For each node generate a server, peer and client certificate
 
 ```bash
-docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-peer-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
-docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
-docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-client-cert 1.etcd.example.com
+docker run -i -t --rm \
+-v $(pwd):/opt/cloudconfig/var \
+hauptmedia/cloudconfig \
+create-etcd-peer-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+
+docker run -i -t --rm \
+-v $(pwd):/opt/cloudconfig/var \
+hauptmedia/cloudconfig \
+create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+
+docker run -i -t --rm \
+-v $(pwd):/opt/cloudconfig/var \
+hauptmedia/cloudconfig \
+create-etcd-client-cert 1.etcd.example.com
 ````
 
 #### References
@@ -180,17 +194,26 @@ The certificates will be saved in *var/etcd-ca*.
 docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-ca
 ```
 
-### Creating a server certificate for etcd
+### Creating a server or peer certificate for etcd
 
-
-Run the *create-server-cert* script with a *common name* and up to *three additional* ip addresses and provide a volume for the */opt/cloudconfig/var* directory.
+Run the *create-server-cert* or *create-peer-cert* script with a *common name* and up to *three additional* ip addresses and provide a volume for the */opt/cloudconfig/var* directory.
 
 The certificates will be saved in *var/etcd-ca*.
 
 **Please note: the CommonName must match the name used for the etcd instance**
 
 ```bash
-docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+docker run -i -t --rm \
+-v $(pwd):/opt/cloudconfig/var \
+hauptmedia/cloudconfig \
+create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+````
+
+```bash
+docker run -i -t --rm \
+-v $(pwd):/opt/cloudconfig/var \
+hauptmedia/cloudconfig \
+create-etcd-peer-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
 ````
 
 ### Creating a client certificate for etcd
@@ -200,7 +223,10 @@ Run the *create-client-cert* script with a *common name* and provide a volume fo
 The certificates will be saved in *var/etcd-ca*.
 
 ```bash
-docker run -i -t --rm -v $(pwd)/var:/opt/cloudconfig/var hauptmedia/cloudconfig create-etcd-client-cert etcd-client.example.com
+docker run -i -t --rm \
+-v $(pwd)/var:/opt/cloudconfig/var \
+hauptmedia/cloudconfig \
+create-etcd-client-cert etcd-client.example.com
 ```
 
 
