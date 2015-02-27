@@ -35,8 +35,9 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     );
 
     if(!empty($nodeConfig['ip'])) {
-        //        'dns_addr'      => '127.0.0.1:53',                      // IP:port on which SkyDNS should listen, defaults to 127.0.0.1:53.
         $skyDnsConfig['dns_addr'] = $nodeConfig['ip'] . ":53";
+    } else {
+        $skyDnsConfig['dns_addr'] = "127.0.0.1:53";
     }
    
     if(!empty($clusterConfig['skydns'])) {
@@ -46,7 +47,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     if(!empty($nodeConfig['skydns'])) {
         $skyDnsConfig = array_merge($skyDnsConfig, $nodeConfig['skydns']);
     }
-
+    
     // construct cloud-config.yml
     if(!array_key_exists('coreos', $cloudConfig)) {
         $cloudConfig['coreos'] = array();
@@ -60,12 +61,15 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
         'path'          => '/etc/skydns-options.env',
         'permissions'   => '0644',
         'content'       => 
-            "ETCD_MACHINES=" . $etcdEndpoint . "\n" .                       // list of etcd machines, "http://localhost:4001,http://etcd.example.com:4001".
+            "ETCD_MACHINES=" . $etcdEndpoint . "\n" .                       // list of etcd machines, "http://localhost:4001,http://etcd.example.com:4001"
+            "SKYDNS_ADDR=" . $skyDnsConfig['dns_addr'] . "\n" .
+            "SKYDNS_DOMAIN=" . $skyDnsConfig['domain'] . "\n" .
             ($useSSL ? "ETCD_TLSKEY=/run/skydns/client.key\n" : "" ) .      // path of TLS client certificate - private key
             ($useSSL ? "ETCD_TLSPEM=/run/skydns/client.crt\n" : "" ) .      // path of TLS client certificate - public key
             ($useSSL ? "ETCD_CACERT=/run/skydns/ca.crt\n" : "" )            // path of TLS certificate authority public key
     );
 
+    
     if (!array_key_exists('write_files', $cloudConfig)) {
         $cloudConfig['write_files'] = array();
     }
@@ -73,7 +77,12 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     $curlOpts = $useSSL ?
         "--cert /etc/ssl/etcd/certs/client.crt --cacert /etc/ssl/etcd/certs/ca.crt --key /etc/ssl/etcd/private/client.key" :
         "";
-    
+
+    list($dnsIp, $port) = explode(":", $skyDnsConfig['dns_addr']);
+    $dnsDomain = $skyDnsConfig['domain'];
+
+    unset($skyDnsConfig['dns_addr']);
+    unset($skyDnsConfig['domain']);
 
     $cloudConfig['write_files'][] = array(
         'path'          => '/etc/skydns-config.json',
@@ -82,6 +91,14 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
             $skyDnsConfig, 
             JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
         )
+    );
+    
+    
+    $cloudConfig['write_files'][] = array(
+        'path'          => '/etc/systemd/system/docker.service.d/50-skydns.conf',
+        'content'       =>
+            "[Service]\n" .
+            "Environment=DOCKER_OPTS='--dns=\"" . $dnsIp . "\" --dns-search=\"" . $dnsDomain . "\"'"
     );
 
     $cloudConfig['coreos']['units'][] = array(
@@ -94,6 +111,8 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
             "After=docker.service\n" .
             "\n" .
             "[Service]\n" .
+            "Restart=always\n".
+            "RestartSec=5\n".
             "ExecStartPre=/usr/bin/mkdir -p /run/skydns\n" .
             "ExecStartPre=/bin/cp /etc/skydns-options.env /run/skydns/options.env\n" .
             ($useSSL ? "ExecStartPre=/bin/cp /etc/ssl/etcd/certs/ca.crt /etc/ssl/etcd/certs/client.crt /etc/ssl/etcd/private/client.key /run/skydns\n" : "") .

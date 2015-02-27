@@ -214,11 +214,23 @@ Starts the skydns service. Will be automatically configured for etcd ssl access 
 It will also automatically write the specified dns config in etcd.
 
 #### configuration options
+* `cluster[skydns][dns_addr]` `node[skydns][dns_addr]` IP:port on which SkyDNS should listen, defaults to node[ip]:53.
 * `cluster[skydns][domain]` domain for which SkyDNS is authoritative, defaults to skydns.local
 * `cluster[skydns][nameservers]` forward DNS requests to these nameservers (array of IP:port combination), when not authoritative for a domain, defaults to [8.8.8.8:53, 8.8.4.4:53]
 * `cluster[skydns][ttl]` default TTL in seconds to use on replies when none is set in etcd, defaults to 3600.
 * `cluster[skydns][min_ttl]` minimum TTL in seconds to use on NXDOMAIN, defaults to 30.
 
+#### Setting a hostname with curl
+
+```bash
+curl -XPUT \
+    --cert /etc/ssl/etcd/certs/client.crt \
+    --cacert /etc/ssl/etcd/certs/ca.crt  \
+    --key /etc/ssl/etcd/private/client.key \
+    http://127.0.0.1:2379/v2/keys/skydns/local/skydns/test \
+    -d value='{"host":"10.10.13.37"}'
+```
+    
 #### References
 * https://github.com/skynetservices/skydns 
 
