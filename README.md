@@ -208,6 +208,20 @@ It will also automatically write the specified network settings in etcd.
 * https://coreos.com/docs/cluster-management/setup/flannel-config/
 * https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
 
+### skydns
+
+Starts the skydns service. Will be automatically configured for etcd ssl access if etcd-ssl was enabled.
+It will also automatically write the specified dns config in etcd.
+
+#### configuration options
+* `cluster[skydns][domain]` domain for which SkyDNS is authoritative, defaults to skydns.local
+* `cluster[skydns][nameservers]` forward DNS requests to these nameservers (array of IP:port combination), when not authoritative for a domain, defaults to [8.8.8.8:53, 8.8.4.4:53]
+* `cluster[skydns][ttl]` default TTL in seconds to use on replies when none is set in etcd, defaults to 3600.
+* `cluster[skydns][min_ttl]` minimum TTL in seconds to use on NXDOMAIN, defaults to 30.
+
+#### References
+* https://github.com/skynetservices/skydns 
+
 ### ephemeral-drive
 
 Mounts an additional ephemeral drive to a specified mount point
