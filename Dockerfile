@@ -6,7 +6,7 @@ ENV	DEBIAN_FRONTEND noninteractive
 
 #Core OS image from where we extract the coreos-cloudinit tool (used to verify cloudinit files)
 ENV	COREOS_CHANNEL_ID=alpha
-ENV	COREOS_VERSION_ID=current
+ENV	COREOS_VERSION_ID=612.1.0
 
 ENV	COREOS_IMAGE_NAME="coreos_production_pxe_image.cpio.gz"
 ENV	COREOS_BASE_URL="http://${COREOS_CHANNEL_ID}.release.core-os.net/amd64-usr"
