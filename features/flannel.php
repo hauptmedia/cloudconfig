@@ -34,11 +34,10 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
         'backend_type'      => 'vxlan'
     );
 
-
     if($useSSL) {
-        $flannelConfig['etcd_cafile']         = "/run/flannel/ca.crt";
-        $flannelConfig['etcd_keyfile']        = "/run/flannel/client.key";
-        $flannelConfig['etcd_certfile']       = "/run/flannel/client.crt";
+        $flannelConfig['etcd_cafile']         = "/etc/ssl/etcd/certs/ca.crt";
+        $flannelConfig['etcd_keyfile']        = "/etc/ssl/etcd/private/client.key";
+        $flannelConfig['etcd_certfile']       = "/etc/ssl/etcd/certs/client.crt";
     }
 
     if(!empty($clusterConfig['flannel'])) {
@@ -97,7 +96,6 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
             'name'      => '50-network-config.conf',
             'content'   => 
                 "[Service]\n" .
-                ($useSSL ? "ExecStartPre=/bin/cp /etc/ssl/etcd/certs/ca.crt /etc/ssl/etcd/certs/client.crt /etc/ssl/etcd/private/client.key /run/flannel\n" : "") .
                 "ExecStartPre=/usr/bin/curl " . $curlOpts . " -L -XPUT " . $etcdEndpoint . "/v2/keys" . $flannelConfig['etcd_prefix'] . "/config --data-urlencode value@/etc/flannel-network-config.json\n"
 
          )),
