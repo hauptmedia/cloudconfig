@@ -30,7 +30,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     $skyDnsConfig = array(
         'domain'        => 'skydns.local',                      // domain for which SkyDNS is authoritative, defaults to skydns.local.
         'nameservers'   => array('8.8.8.8:53', '8.8.4.4:53'),   // forward DNS requests to these nameservers (array of IP:port combination), when not authoritative for a domain.
-        'ttl'           => 3600,                                // default TTL in seconds to use on replies when none is set in etcd, defaults to 3600.
+        'ttl'           => 60,                                // default TTL in seconds to use on replies when none is set in etcd, defaults to 3600.
         'min_ttl'       => 30                                   // minimum TTL in seconds to use on NXDOMAIN, defaults to 30.
     );
 
