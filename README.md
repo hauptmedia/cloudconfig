@@ -196,6 +196,14 @@ list-machines
 * https://github.com/coreos/fleet/blob/master/Documentation/deployment-and-configuration.md#configuration
 * https://coreos.com/docs/launching-containers/launching/launching-containers-fleet/
 
+### fleet-metadata-env-file
+
+This feature writes the fleet metadata as an env file in `/etc/fleet-metadata.env`
+
+The env file can be used to pass the fleet metadata as environment variables in docker containers
+with the `--env-file=/etc/fleet-metadata.env` docker command line option or in systemd service definitions
+using the `EnvironmentFile=/etc/fleet-metadata.env` configuration option
+
 ### flannel
 
 Starts flanneld service. Will be automatically configured for etcd ssl access if etcd-ssl was enabled.
