@@ -3,7 +3,8 @@
  * This feature writes the fleet metadata as an env file in /etc/fleet-metadata.env
  *
  * The env file can be used to pass the fleet metadata as environment variables in docker containers
- * with the --env-file=/etc/fleet-metadata.env docker command line option
+ * with the --env-file=/etc/fleet-metadata.env docker command line option or in systemd service definitions
+ * using the EnvironmentFile=/etc/fleet-metadata.env configuration option
  */
 return function($clusterConfig, $nodeConfig, $cloudConfig) {
     $fleetConfig = array();
