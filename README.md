@@ -233,7 +233,7 @@ curl -XPUT \
 
 #### using the skydns-set-record script
 
-The skydns feature installs a convenience script which can be used to set hostname records in `/home/core/bin/skydns-set-record`
+The skydns feature installs a convenience script which can be used to set hostname records at `/home/core/bin/skydns-set-record`
 
 ```bash
 /home/core/bin/skydns-set-record test.skydns.local 10.10.10.10
