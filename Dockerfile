@@ -7,8 +7,7 @@ ENV	DEBIAN_FRONTEND             noninteractive
 ENV	COREOS_CHANNEL_ID           alpha
 ENV	COREOS_VERSION_ID           612.1.0
 ENV	COREOS_IMAGE_NAME           coreos_production_pxe_image.cpio.gz
-ENV	COREOS_BASE_URL             http://${COREOS_CHANNEL_ID}.release.core-os.net/amd64-usr
-ENV	COREOS_IMAGE_URL            ${COREOS_BASE_URL}/${COREOS_VERSION_ID}/${COREOS_IMAGE_NAME}
+ENV	COREOS_IMAGE_URL            http://${COREOS_CHANNEL_ID}.release.core-os.net/amd64-usr/${COREOS_VERSION_ID}/${COREOS_IMAGE_NAME}
 
 # install required packges
 RUN	apt-get update -qq && \
