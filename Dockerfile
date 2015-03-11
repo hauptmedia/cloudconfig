@@ -33,7 +33,13 @@ RUN	a2dissite 000-default && \
 	mkdir ${CLOUDCONFIG_INSTALL_DIR}
 
 
-ADD	composer.json composer.lock bin/ conf/ features/ www/ ${CLOUDCONFIG_INSTALL_DIR}/
+ADD	composer.json composer.lock ${CLOUDCONFIG_INSTALL_DIR}/
+ADD	bin/ ${CLOUDCONFIG_INSTALL_DIR}/bin/
+ADD	conf/ ${CLOUDCONFIG_INSTALL_DIR}/conf/
+ADD	features/ ${CLOUDCONFIG_INSTALL_DIR}/features/
+ADD	www/ ${CLOUDCONFIG_INSTALL_DIR}/www/
+
+
 
 WORKDIR     ${CLOUDCONFIG_INSTALL_DIR}
 RUN         curl -sS https://getcomposer.org/installer | php && \
