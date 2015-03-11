@@ -1,0 +1,44 @@
+#!/bin/sh
+
+if [ -z $1 ] || [ -z $2 ]; then
+    echo Usage: $0 hostname ip [ttl] 1>&2
+    echo 1>&2
+    echo Example: $0 test.skydns.local 10.10.10.10 1>&2
+    exit 1
+fi
+
+HOSTNAME=$1
+IP=$2
+
+if [ ! -f /etc/skydns-options.env ]; then
+    echo Missing /etc/skydns-options.env 1>&2
+    exit 1
+fi
+
+. /etc/skydns-options.env
+
+if [ -z "$ETCD_MACHINES" ]; then
+    echo Missing ETCD_MACHINES variable 1>&2
+    exit 1
+fi
+
+CURLOPTS="-L --silent --output /dev/null --write-out %{http_code}"
+
+if [ -n "$ETCD_TLSKEY" ] && [ -n "$ETCD_TLSPEM" ] && [ -n "$ETCD_CACERT" ]; then
+    CURLOPTS="${CURLOPTS} --cert ${ETCD_TLSPEM} --cacert ${ETCD_CACERT} --key ${ETCD_TLSKEY}"
+fi
+
+if [ -n "$3" ]; then
+    CURLOPTS="${CURLOPTS} -d ttl=$3"
+fi
+
+KEY=$(echo -n ${HOSTNAME}. | tac -s'.' | tr . / | sed 's/\/$//')
+
+res=`curl $CURLOPTS -XPUT -d value='{"host":"'$IP'"}' $ETCD_MACHINES/v2/keys/skydns/$KEY`
+
+if [ "${res}" != "200" ] && [ "${res}" != "201" ]; then
+	echo Error: etcd returned HTTP status code ${res} 1>&2
+	exit 1
+fi
+
+exit 0
