@@ -13,6 +13,7 @@ cluster:
     - etcd
     - etcd-ssl
     - fleet
+    - mount
 
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd:
@@ -31,7 +32,7 @@ cluster:
       ip: 11.22.33.44
 
       fleet:
-        metadata: datacenter=colo1
+        metadata: dc=colo1,rack=rack1,disc=ssd,disc_amount=1,mem=32
 
       update:
         group: alpha
@@ -40,9 +41,12 @@ cluster:
     - mac: c8:60:00:bb:aa:91
       hostname: coreos-2
       ip: 1.2.3.4
-
+      mount:
+        - dev: /dev/sdb
+          mount-point: /mnt/sdb
+          type: ext4
       fleet:
-        metadata: datacenter=colo2
+        metadata: dc=colo2,rack=rack2,disc=hdd,disc_amount=2,mem=32
 ```
 
 ## Example usage
@@ -245,9 +249,13 @@ The skydns feature installs a convenience script which can be used to set hostna
 #### References
 * https://github.com/skynetservices/skydns 
 
-### ephemeral-drive
+### mount
 
-Mounts an additional ephemeral drive to a specified mount point
+Mounts a given device to the specified mount point
+
+* `cluster[mount][dev]` `cluster[mount][dev]` Device which should be mounted
+* `cluster[mount][mount-point]` `cluster[mount][mount-point]` Mount point where the device should be mounted
+* `cluster[mount][type]` `cluster[mount][type]` Filesystem type of the mountpoint
 
 #### References
 * https://coreos.com/docs/cluster-management/setup/mounting-storage/
