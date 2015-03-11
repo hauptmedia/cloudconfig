@@ -230,7 +230,18 @@ curl -XPUT \
     https://127.0.0.1:2379/v2/keys/skydns/local/skydns/test \
     -d value='{"host":"10.10.13.37"}'
 ```
-    
+
+#### using the skydns-set-record script
+
+The skydns feature installs a convenience script which can be used to set hostname records in `/home/core/bin/skydns-set-record`
+
+```bash
+/home/core/bin/skydns-set-record test.skydns.local 10.10.10.10
+
+# with ttl (after which the record becomes unavailable)
+/home/core/bin/skydns-set-record test.skydns.local 10.10.10.10 60
+```
+
 #### References
 * https://github.com/skynetservices/skydns 
 
