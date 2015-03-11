@@ -227,7 +227,7 @@ curl -XPUT \
     --cert /etc/ssl/etcd/certs/client.crt \
     --cacert /etc/ssl/etcd/certs/ca.crt  \
     --key /etc/ssl/etcd/private/client.key \
-    http://127.0.0.1:2379/v2/keys/skydns/local/skydns/test \
+    https://127.0.0.1:2379/v2/keys/skydns/local/skydns/test \
     -d value='{"host":"10.10.13.37"}'
 ```
     
