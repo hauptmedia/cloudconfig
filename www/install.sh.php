@@ -24,10 +24,9 @@ TMP_FILE=/tmp/$$-cloud-config.yml
 
 if [ -f /etc/os-release ]; then
 	. /etc/os-release
-	IS_COREOS="true"
 fi
 
-QUERY_URL="${BASE_URL}/cloud-config.yml?mac=${MAC_ADDRESS}&ip=${IP_ADDRESS}&version=$VERSION"
+QUERY_URL="${BASE_URL}/cloud-config.yml?mac=${MAC_ADDRESS}&ip=${IP_ADDRESS}"
 
 echo
 echo Configuration details
@@ -57,7 +56,7 @@ fi
 # source cloud-config.yml as shell variables
 . ${TMP_FILE}.sh
 
-if [ ! -z $IS_COREOS ]; then
+if [ "$NAME" = "CoreOS" ]; then
 	coreos-cloudinit -validate --from-file=${TMP_FILE}
 	if [ $? -ne 0 ];then
 		echo
@@ -66,29 +65,22 @@ if [ ! -z $IS_COREOS ]; then
 	fi
 fi
 
-echo New cloud-config.yml
-echo
-cat ${TMP_FILE}
-
-echo ""
-echo "" 
 echo "Starting automatic provioning in 5 seconds (CTRL-C to abort)"
 
 sleep 5
 
-if [ -z $IS_COREOS ]; then
+if [ "$NAME" = "CoreOS" ]; then
+	echo "Updating cloud-config.yml in /var/lib/coreos-install/user_data"
+	echo
+	mv /var/lib/coreos-install/user_data /var/lib/coreos-install/user_data.backup
+	mv ${TMP_FILE} /var/lib/coreos-install/user_data
+else
 	echo "Installing CoreOS on ${COREOS_INSTALL_DEV}"
 	echo
 
 	curl -o coreos-install https://raw.githubusercontent.com/coreos/init/master/bin/coreos-install >/dev/null 2>&1
 	chmod +x coreos-install
 	./coreos-install -d ${COREOS_INSTALL_DEV} -C ${COREOS_UPDATE_GROUP} -c ${TMP_FILE}
-
-else
-	echo "Updating cloud-config.yml in /var/lib/coreos-install/user_data"
-	echo
-	mv /var/lib/coreos-install/user_data /var/lib/coreos-install/user_data.backup
-	mv ${TMP_FILE} /var/lib/coreos-install/user_data
 fi
 	
 echo ""

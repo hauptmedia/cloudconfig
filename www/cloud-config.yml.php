@@ -98,7 +98,7 @@ if(array_key_exists('format', $_GET) && $_GET['format'] == 'sh') {
     }
 
     foreach(array_flatten($cloudConfig) as $key => $value) {
-        printf("%s=\"%s\"\n", str_replace("-", "_", strtoupper($key)), addslashes($value));
+        printf("%s=%s\n", str_replace("-", "_", strtoupper($key)), escapeshellarg($value));
     }
     
 } else {
