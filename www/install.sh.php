@@ -65,10 +65,6 @@ if [ "$NAME" = "CoreOS" ]; then
 	fi
 fi
 
-echo "Starting automatic provioning in 5 seconds (CTRL-C to abort)"
-
-sleep 5
-
 if [ "$NAME" = "CoreOS" ]; then
 	echo "Updating cloud-config.yml in /var/lib/coreos-install/user_data"
 	echo
