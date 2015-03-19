@@ -97,6 +97,9 @@ curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 
 ## Available features & config options
 
+### timezone
+* `cluster[timezone] `node[timezone]` - Set the timezone to the specified string on a cluster wide or node level
+
 ### etcd
 
 Run the etcd service
