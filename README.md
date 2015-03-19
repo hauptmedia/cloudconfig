@@ -14,6 +14,9 @@ cluster:
     - etcd-ssl
     - fleet
     - mount
+    - timezone
+
+  timezone: Europe/Berlin
 
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd:
