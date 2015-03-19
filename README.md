@@ -202,13 +202,18 @@ list-machines
 * https://github.com/coreos/fleet/blob/master/Documentation/deployment-and-configuration.md#configuration
 * https://coreos.com/docs/launching-containers/launching/launching-containers-fleet/
 
-### fleet-metadata-env-file
+### host-env-file
 
-This feature writes the fleet metadata as an env file in `/etc/fleet-metadata.env`
+This feature writes the some information about the evironment and the fleet metadata as an env file in `/etc/host.env`.
+
+The fleet metadata keys will be transformed to uppercase and prefixed with `FLEET_`. 
+E.g. fleet metadata "dc=dc1,rack=12" will we available as `FLEET_DC=dc1` `FLEET_RACK=12`
 
 The env file can be used to pass the fleet metadata as environment variables in docker containers
-with the `--env-file=/etc/fleet-metadata.env` docker command line option or in systemd service definitions
-using the `EnvironmentFile=/etc/fleet-metadata.env` configuration option
+with the `--env-file=/etc/host.env` docker command line option or in systemd service definitions
+using the `EnvironmentFile=/etc/host.env` configuration option
+
+This feature also install the `/opt/bin/getip` script for easy retrieval of the system's main ip address.
 
 ### flannel
 
