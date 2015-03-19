@@ -96,7 +96,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     );
     
     $cloudConfig['write_files'][] = array(
-        'path'          => '/home/core/bin/skydns-set-record',
+        'path'          => '/opt/bin/skydns-set-record',
         'permissions'   => '0755',
         'content'       => file_get_contents(
              __DIR__ . '/../bin/skydns-set-record'

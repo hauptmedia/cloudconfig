@@ -248,10 +248,10 @@ curl -XPUT \
 The skydns feature installs a convenience script which can be used to set hostname records at `/home/core/bin/skydns-set-record`
 
 ```bash
-/home/core/bin/skydns-set-record test.skydns.local 10.10.10.10
+/opt/bin/skydns-set-record test.skydns.local 10.10.10.10
 
 # with ttl (after which the record becomes unavailable)
-/home/core/bin/skydns-set-record test.skydns.local 10.10.10.10 60
+/opt/bin/skydns-set-record test.skydns.local 10.10.10.10 60
 ```
 
 #### References
