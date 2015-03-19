@@ -12,7 +12,7 @@ dos2unix docker-entrypoint.sh
 docker build -t="hauptmedia/cloudconfig" .
 
 docker run -i -t --rm \
--p 80:80 \
+-p 8080:80 \
 -v $(pwd)/../cloudconfig-settings:/opt/cloudconfig/var \
 -v $(pwd)/www:/opt/cloudconfig/www \
 -v $(pwd)/features:/opt/cloudconfig/features \
