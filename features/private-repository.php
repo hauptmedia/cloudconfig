@@ -1,4 +1,5 @@
 <?php
+//TODO: Add support for private repositories with authentification
 return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     $privateRepositoryConfig = array();
 
