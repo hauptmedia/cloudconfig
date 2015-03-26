@@ -117,7 +117,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
             $privateRepositoryConfig = array_merge($privateRepositoryConfig, $nodeConfig['private-repository']);
         }
 
-        $dockerOpts .= "--insecure-registry=\"" . $privateRepositoryConfig['insecure-addr'] ."\"";
+        $dockerOpts .= " --insecure-registry=\"" . $privateRepositoryConfig['insecure-addr'] ."\"";
     }
 
     $cloudConfig['write_files'][] = array(
