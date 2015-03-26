@@ -97,6 +97,14 @@ curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 
 ## Available features & config options
 
+### private-repository
+
+Add support for private docker repositories 
+
+* `cluster[private-repository][insecure-addr]` `node[private-repository][insecure-addr]` - 
+If the private registry supports only HTTP or HTTPS with an unknown CA certificate specfiy it's address here. CIDR notations are also allowed.
+
+
 ### timezone
 * `cluster[timezone] `node[timezone]` - Set the timezone to the specified string on a cluster wide or node level
 
