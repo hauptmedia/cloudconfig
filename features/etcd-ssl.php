@@ -1,5 +1,5 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig) {
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     // merge config  node <= cluster <= defaults
     $etcdSslConfig = array();
 

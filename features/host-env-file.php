@@ -6,7 +6,7 @@
  * with the --env-file=/etc/host.env docker command line option or in systemd service definitions
  * using the EnvironmentFile=/etc/host.env configuration option
  */
-return function($clusterConfig, $nodeConfig, $cloudConfig) {
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     $fleetConfig = array();
     
     if(!empty($clusterConfig['fleet'])) {

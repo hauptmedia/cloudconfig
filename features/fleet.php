@@ -1,5 +1,5 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig) {
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     // determine which features are active for this node
     $enabledFeatures = array();
 

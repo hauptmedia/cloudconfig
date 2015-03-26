@@ -1,5 +1,5 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig) {
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
 
     if(!array_key_exists('coreos', $cloudConfig)) {
         $cloudConfig['coreos'] = array();
