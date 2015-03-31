@@ -300,6 +300,16 @@ You can use the scripts provided in the https://github.com/hauptmedia/ssl-cert r
 
 Please refer to the README.md file in the ssl-cert repository for further information.
 
+### Creating the certificates
+
+```bash
+mkdir var/etcd-ca
+create-ca -d var/etcd-ca
+bin/create-etcd-cert -t server -c coreos-1.skydns.io -i 192.168.1.2 
+bin/create-etcd-cert -t client -c coreos-1.skydns.io -i 192.168.1.2
+bin/create-etcd-cert -t peer -c coreos-1.skydns.io -i 192.168.1.2
+```
+
 ### Testing authentification
 
 ```bash
