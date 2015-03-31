@@ -294,59 +294,11 @@ Mounts a given device to the specified mount point
 ## Securing etcd with SSL/TLS
 
 In a production environment it might be a good idea to secure etcd with it's integrated SSL/TLS secruity. However etcd
-needs specially crafted certificates to function properly. An *openssl.cnf* with all the needed settings is included in
-this repository.
+needs specially crafted certificates to function properly.
 
-You can use the provided scripts in *bin* directory to manage your ssl certificates.
+You can use the scripts provided in the https://github.com/hauptmedia/ssl-cert repository to manage your etcd ssl certificates.
 
-### Creating a certificate authority for etcd
-
-Run the *create-etcd-ca* script and provide a volume for the */opt/cloudconfig/var* directory.
-
-The certificates will be saved in *var/etcd-ca*.
-
-```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-ca
-```
-
-### Creating a server or peer certificate for etcd
-
-Run the *create-server-cert* or *create-peer-cert* script with a *common name* and up to *three additional* ip addresses and provide a volume for the */opt/cloudconfig/var* directory.
-
-The certificates will be saved in *var/etcd-ca*.
-
-**Please note: the CommonName must match the name used for the etcd instance**
-
-```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
-````
-
-```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-peer-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
-````
-
-### Creating a client certificate for etcd
-
-Run the *create-client-cert* script with a *common name* and provide a volume for the */opt/cloudconfig/var* directory.
-
-The certificates will be saved in *var/etcd-ca*.
-
-```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-client-cert etcd-client.example.com
-```
-
+Please refer to the README.md file in the ssl-cert repository for further information.
 
 ### Testing authentification
 
@@ -370,29 +322,4 @@ curl --cert /etc/ssl/etcd/certs/client.crt \
      --cacert /etc/ssl/etcd/certs/ca.crt  \
      --key /etc/ssl/etcd/private/client.key -v \
      -XDELETE -v -L https://127.0.0.1:2379/v2/keys/foo
-
-
 ```
-
-### Certificate requirements in detail
-
-#### Client certificate requirements
-* IP address of the client has to be included as *subjectAltName* on the certificate. In order to get *subjectAltName* you need to enable relevant *X509.3* extension
-* Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Client Authentication*.
-
-#### Peer certificate requirements
-* Similarly to client certificate, the IP address has to be included in *SAN*. See above for details.
-* Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Server Authentication*.
-
-
-### References
-* https://coreos.com/docs/distributed-configuration/etcd-security/
-* http://blog.skrobul.com/securing_etcd_with_tls/
-* https://github.com/kelseyhightower/etcd-production-setup
-* http://www.g-loaded.eu/2005/11/10/be-your-own-ca/
-
-## References on third party websites and the CoreOS documentation
-
-* https://coreos.com/docs/launching-containers/building/customizing-docker/
-* https://coreos.com/docs/launching-containers/building/registry-authentication/
-
