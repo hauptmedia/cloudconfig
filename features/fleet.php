@@ -14,6 +14,14 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         'etcd_servers' => $etcdEndpoint
     );
 
+    if(!empty($clusterConfig['fleet'])) {
+        $fleetConfig = array_merge($fleetConfig, $clusterConfig['fleet']);
+    }
+
+    if(!empty($nodeConfig['fleet'])) {
+        $fleetConfig = array_merge($fleetConfig, $nodeConfig['fleet']);
+    }
+
     if($useSSL) {
         $fleetConfig['etcd_cafile']         = "/etc/ssl/etcd/certs/ca.crt";
         $fleetConfig['etcd_keyfile']        = "/etc/ssl/etcd/private/client.key";
@@ -68,6 +76,25 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         'path'          => '/etc/fleetctl.env',
         'content'       => $fleetctlEnvFileContent
     );
+
+    $fleetmetaEnvFileContent = "";
+
+    if(!empty($fleetConfig["metadata"])) {
+        $metaDataEntries = explode(",", $fleetConfig["metadata"]);
+
+        foreach ($metaDataEntries as $metaDataEntry) {
+            list($key, $value) = explode("=", $metaDataEntry);
+
+            $fleetmetaEnvFileContent .= strtoupper($key) . "=" . $value . "\n";
+        }
+
+        $cloudConfig['write_files'][] = array(
+            'owner'         => 'root:root',
+            'permissions'   => '0644',
+            'path'          => '/etc/fleet-metadata.env',
+            'content'       => $fleetmetaEnvFileContent
+        );
+    }
 
     return $cloudConfig;
 
