@@ -188,8 +188,6 @@ This feature also writes a `/etc/fleetctl.env` file which can be used to provide
 
 #### Use fleetctl with SSL/TLS configuration shipped with this image
 
-You should create your own client ssl certificate as described in the "Creating a client certificate for etcd" section.
-
 ```bash
 docker run -i -t --rm \
 -v $(pwd):/opt/cloudconfig/var \
