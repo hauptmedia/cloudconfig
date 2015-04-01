@@ -182,9 +182,18 @@ It will also automatically write the specified network settings in etcd.
 
 ### fleet
 
-Run the fleet service. Automaticly configures itself for etcd-ssl if etcd-ssl is enabled.
+Runs the fleet service. It automatically configures itself for etcd-ssl if etcd-ssl is enabled.
 
-This feature also writes a `/etc/fleetctl.env` file which can be used to provide a configuration to fleetctl.
+This feature writes a `/etc/fleet-metadata.env` file which contains the fleet metadata as environment variables.
+
+The fleet metadata keys will be transformed to uppercase. E.g. fleet metadata "dc=dc1,rack=12" will 
+be available as `DC=dc1` `RACK=12`
+
+The env file can be used to pass the fleet metadata as environment variables in docker containers
+with the `--env-file=/etc/fleet-metadata.env` docker command line option or in systemd service definitions
+using the `EnvironmentFile=/etc/fleet-metadata.env` configuration option.
+
+This feature also writes a `/etc/fleetctl.env` file which can be used to provide a configuration to `fleetctl`.
 
 #### Use fleetctl with SSL/TLS configuration shipped with this image
 
@@ -218,14 +227,7 @@ list-machines
 
 ### host-env-file
 
-This feature writes the some information about the evironment and the fleet metadata as an env file in `/etc/host.env`.
-
-The fleet metadata keys will be transformed to uppercase and prefixed with `FLEET_`. 
-E.g. fleet metadata "dc=dc1,rack=12" will we available as `FLEET_DC=dc1` `FLEET_RACK=12`
-
-The env file can be used to pass the fleet metadata as environment variables in docker containers
-with the `--env-file=/etc/host.env` docker command line option or in systemd service definitions
-using the `EnvironmentFile=/etc/host.env` configuration option
+This feature writes the some information about the evironment in `/etc/host.env`.
 
 This feature also install the `/opt/bin/getip` script for easy retrieval of the system's main ip address.
 
