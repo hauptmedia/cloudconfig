@@ -184,6 +184,8 @@ It will also automatically write the specified network settings in etcd.
 
 Run the fleet service. Automaticly configures itself for etcd-ssl if etcd-ssl is enabled.
 
+This feature also writes a `/etc/fleetctl.env` file which can be used to provide a configuration to fleetctl.
+
 #### Use fleetctl with SSL/TLS configuration shipped with this image
 
 You should create your own client ssl certificate as described in the "Creating a client certificate for etcd" section.
