@@ -63,6 +63,8 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     }
 
     $cloudConfig['write_files'][] = array(
+        'owner'         => 'root:root',
+        'permissions'   => '0644',
         'path'          => '/etc/fleetctl.env',
         'content'       => $fleetctlEnvFileContent
     );
