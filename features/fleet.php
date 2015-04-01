@@ -1,18 +1,5 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeaturesr) {
-    // determine which features are active for this node
-    $enabledFeatures = array();
-
-    if(!empty($clusterConfig['features'])) {
-        $enabledFeatures = array_merge($enabledFeatures, $clusterConfig['features']);
-    }
-
-    if(!empty($nodeConfig['features'])) {
-        $enabledFeatures = array_merge($enabledFeatures, $nodeConfig['features']);
-    }
-
-
-    // merge config  node <= cluster <= defaults
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     $useSSL = in_array('etcd-ssl', $enabledFeatures);
 
     if(!array_key_exists('etcd', $cloudConfig['coreos'])) {
