@@ -1,5 +1,5 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeaturesr) {
     // determine which features are active for this node
     $enabledFeatures = array();
 
@@ -15,15 +15,31 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     // merge config  node <= cluster <= defaults
     $useSSL = in_array('etcd-ssl', $enabledFeatures);
 
-    $fleetConfig = array();
-    
+    if(!array_key_exists('etcd', $cloudConfig['coreos'])) {
+        throw new \Exception("etcd feature must be enabled before fleet");
+    }
+
+    $etcdEndpoint   = $useSSL ?
+        "https://" . $cloudConfig['coreos']['etcd']['addr'] :
+        "http://" . $cloudConfig['coreos']['etcd']['addr'];
+
+    $fleetConfig = array(
+        'etcd_servers' => $etcdEndpoint
+    );
+
     if($useSSL) {
-        $fleetConfig['etcd_servers']        = "https://127.0.0.1:2379";
         $fleetConfig['etcd_cafile']         = "/etc/ssl/etcd/certs/ca.crt";
         $fleetConfig['etcd_keyfile']        = "/etc/ssl/etcd/private/client.key";
         $fleetConfig['etcd_certfile']       = "/etc/ssl/etcd/certs/client.crt";
-    } else {
-        $fleetConfig['etcd_servers']        = "http://127.0.0.1:2379";
+    }
+
+    $fleetctlEnvFileContent = "FLEETCTL_ENDPOINT=" . $fleetConfig['etcd_servers'] . "\n";
+
+    if($useSSL) {
+        $fleetctlEnvFileContent .=
+            "FLEETCTL_CERT_FILE="   . $fleetConfig['etcd_certfile'] . "\n" .
+            "FLEETCTL_KEY_FILE="    . $fleetConfig['etcd_keyfile']  . "\n" .
+            "FLEETCTL_CA_FILE="     . $fleetConfig['etcd_cafile']   . "\n";
     }
 
     if(!empty($nodeConfig['ip'])) {
@@ -53,6 +69,16 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     );
 
     $cloudConfig['coreos']['fleet'] = $fleetConfig;
+
+
+    if (!array_key_exists('write_files', $cloudConfig)) {
+        $cloudConfig['write_files'] = array();
+    }
+
+    $cloudConfig['write_files'][] = array(
+        'path'          => '/etc/fleetctl.env',
+        'content'       => $fleetctlEnvFileContent
+    );
 
     return $cloudConfig;
 
