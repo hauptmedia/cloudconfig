@@ -255,6 +255,11 @@ If the private registry supports only HTTP or HTTPS with an unknown CA certifica
 
 https://coreos.com/docs/launching-containers/building/registry-authentication/
 
+### set-host-dns-entry
+
+This feature utilizes the `/opt/bin/skydns-set-record` script provided by the `skydns` feature and registers the
+hostname of the node in skydns. This will only work if the hostname was specified as a FQDN and skydns is configured
+to be authoritative for the domain name.
 
 ### skydns
 
