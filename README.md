@@ -298,6 +298,13 @@ The skydns feature installs a convenience script which can be used to set hostna
 #### References
 * https://github.com/skynetservices/skydns 
 
+### ssh-agent
+
+Runs an ssh-agent for the `core` user. The ssh-agent socket will be available at `/tmp/ssh-agent.sock`.
+ 
+It automatically registers the private key of the `core` user at the agent (assuming that it has no passphrase set).
+
+This feature can be used to enable fleetctl ssh authentication on the coreos node. 
 
 ### timezone
 * `cluster[timezone] `node[timezone]` - Set the timezone to the specified string on a cluster wide or node level
