@@ -99,7 +99,9 @@ curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 
 ### bash-profile
 
-Writes a `/home/core/.bash_profile` file which will automatically source the `/etc/fleetctl.env` file if available.
+Writes a `/home/core/.bash_profile` file which will automatically source the `/etc/fleetctl.env` file if available
+
+and register the ssh-agent at `/tmp/ssh-agent.sock` if available.
 
 ### etcd
 
