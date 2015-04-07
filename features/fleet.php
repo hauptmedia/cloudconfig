@@ -49,6 +49,11 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         $fleetConfig = array_merge($fleetConfig, $nodeConfig['fleet']);
     }
 
+    if(array_key_exists('strict_host_key_checking', $fleetConfig)) {
+        $fleetctlEnvFileContent .= "FLEETCTL_STRICT_HOST_KEY_CHECKING=" . ( $fleetConfig['strict_host_key_checking'] ? 'true' : 'false' ) . "\n";
+        unset($fleetConfig['strict_host_key_checking']);
+    }
+
     // construct cloud-config.yml
     if(!array_key_exists('coreos', $cloudConfig)) {
         $cloudConfig['coreos'] = array();

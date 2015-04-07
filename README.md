@@ -197,6 +197,20 @@ using the `EnvironmentFile=/etc/fleet-metadata.env` configuration option.
 
 This feature also writes a `/etc/fleetctl.env` file which can be used to provide a configuration to `fleetctl`.
 
+#### configuration options
+
+All default fleet configuration options are available plus:
+
+* `cluster[fleet][verbosity]` `node[fleet][verbosity]` Enable debug logging by setting this to an integer value greater than zero. Only a single debug level exists, so all values greater than zero are considered equivalent. Default: 0
+* `cluster[fleet][etcd_servers]` `node[fleet][etcd_servers]` Provide a custom set of etcd endpoints. Default: ["http://127.0.0.1:4001"]
+* `cluster[fleet][etcd_request_timeout]` `node[fleet][etcd_request_timeout]` Amount of time in seconds to allow a single etcd request before considering it failed. Default: 1.0 
+* `cluster[fleet][etcd_cafile,etcd_keyfile,etcd_certfile]` `node[fleet][etcd_cafile,etcd_keyfile,etcd_certfile]` Provide TLS configuration when SSL certificate authentication is enabled in etcd endpoints
+* `cluster[fleet][public_ip]` `node[fleet][public_ip]` IP address that should be published with the local Machine's state and any socket information. If not set, fleetd will attempt to detect the IP it should publish based on the machine's IP routing information.
+* `cluster[fleet][metadata]` `node[fleet][metadata]` Comma-delimited key/value pairs that are published with the local to the fleet registry. This data can be used directly by a client of fleet to make scheduling decisions. An example set of metadata could look like: `metadata="region=us-west,az=us-west-1"` 
+* `cluster[fleet][agent_ttl]` `node[fleet][agent_ttl]` An Agent will be considered dead if it exceeds this amount of time to communicate with the Registry. The agent will attempt a heartbeat at half of this value. Default: "30s" 
+* `cluster[fleet][engine_reconcile_interval]` `node[fleet][engine_reconcile_interval]`  Interval at which the engine should reconcile the cluster schedule in etcd. Default: 2
+* `cluster[fleet][strict_host_key_checking]` `node[fleet][strict_host_key_checking]` Boolean which specifies if fleetctl will check the ssh host keys or not
+
 #### Use fleetctl with SSL/TLS configuration shipped with this image
 
 ```bash
@@ -315,8 +329,8 @@ provide authentication credentials for fleetctl.
 
 #### configuration options
 
-* `cluster[private] `node[private]` - Content of the private key file (will be written to `/home/core/.ssh/id_rsa`)
-* `cluster[public] `node[public]` - Content of the public key file (will be written to `/home/core/.ssh/id_rsa.pub`)
+* `cluster[ssh-key][private] `node[ssh-key][private]` - Content of the private key file (will be written to `/home/core/.ssh/id_rsa`)
+* `cluster[ssh-key][public] `node[ssh-key][public]` - Content of the public key file (will be written to `/home/core/.ssh/id_rsa.pub`)
 
 
 ### timezone
