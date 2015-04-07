@@ -308,6 +308,17 @@ It automatically registers the private key of the `core` user at the agent (assu
 
 This feature can be used to enable fleetctl ssh authentication on the coreos node. 
 
+### ssh-key
+
+This features writes a private key file for the core user. This is useful in combination with the ssh-agent feature to
+provide authentication credentials for fleetctl.
+
+#### configuration options
+
+* `cluster[private] `node[private]` - Content of the private key file (will be written to `/home/core/.ssh/id_rsa`)
+* `cluster[public] `node[public]` - Content of the public key file (will be written to `/home/core/.ssh/id_rsa.pub`)
+
+
 ### timezone
 * `cluster[timezone] `node[timezone]` - Set the timezone to the specified string on a cluster wide or node level
 
