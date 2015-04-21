@@ -99,9 +99,7 @@ curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 
 ### bash-profile
 
-Writes a `/home/core/.bash_profile` file which will automatically source the `/etc/fleetctl.env` file if available
-
-and register the ssh-agent at `/tmp/ssh-agent.sock` if available.
+Writes a `/home/core/.bash_profile` file and register the ssh-agent at `/tmp/ssh-agent.sock` if available.
 
 ### etcd
 
@@ -209,7 +207,6 @@ All default fleet configuration options are available plus:
 * `cluster[fleet][metadata]` `node[fleet][metadata]` Comma-delimited key/value pairs that are published with the local to the fleet registry. This data can be used directly by a client of fleet to make scheduling decisions. An example set of metadata could look like: `metadata="region=us-west,az=us-west-1"` 
 * `cluster[fleet][agent_ttl]` `node[fleet][agent_ttl]` An Agent will be considered dead if it exceeds this amount of time to communicate with the Registry. The agent will attempt a heartbeat at half of this value. Default: "30s" 
 * `cluster[fleet][engine_reconcile_interval]` `node[fleet][engine_reconcile_interval]`  Interval at which the engine should reconcile the cluster schedule in etcd. Default: 2
-* `cluster[fleet][strict_host_key_checking]` `node[fleet][strict_host_key_checking]` Boolean which specifies if fleetctl will check the ssh host keys or not
 
 #### Use fleetctl with SSL/TLS configuration shipped with this image
 

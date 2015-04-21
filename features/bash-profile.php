@@ -3,11 +3,6 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     $bashProfileContent  =
         "[[ -f ~/.bashrc ]] && . ~/.bashrc\n" .
         "\n" .
-        "if [ -f /etc/fleetctl.env ]; then\n" .
-        "  . /etc/fleetctl.env\n" .
-        "  export FLEETCTL_ENDPOINT FLEETCTL_CERT_FILE FLEETCTL_KEY_FILE FLEETCTL_CA_FILE\n" .
-        "fi\n" .
-        "\n" .
         "if [ -z \"\$SSH_AUTH_SOCK\" ] && [ -e /tmp/ssh-agent.sock ]; then\n" .
         "  export SSH_AUTH_SOCK=/tmp/ssh-agent.sock\n" .
         "fi\n";

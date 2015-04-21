@@ -28,15 +28,6 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         $fleetConfig['etcd_certfile']       = "/etc/ssl/etcd/certs/client.crt";
     }
 
-    $fleetctlEnvFileContent = "FLEETCTL_ENDPOINT=" . $fleetConfig['etcd_servers'] . "\n";
-
-    if($useSSL) {
-        $fleetctlEnvFileContent .=
-            "FLEETCTL_CERT_FILE="   . $fleetConfig['etcd_certfile'] . "\n" .
-            "FLEETCTL_KEY_FILE="    . $fleetConfig['etcd_keyfile']  . "\n" .
-            "FLEETCTL_CA_FILE="     . $fleetConfig['etcd_cafile']   . "\n";
-    }
-
     if(!empty($nodeConfig['ip'])) {
         $fleetConfig['public-ip'] = $nodeConfig['ip'];
     }
@@ -47,11 +38,6 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
 
     if(!empty($nodeConfig['fleet'])) {
         $fleetConfig = array_merge($fleetConfig, $nodeConfig['fleet']);
-    }
-
-    if(array_key_exists('strict_host_key_checking', $fleetConfig)) {
-        $fleetctlEnvFileContent .= "FLEETCTL_STRICT_HOST_KEY_CHECKING=" . ( $fleetConfig['strict_host_key_checking'] ? 'true' : 'false' ) . "\n";
-        unset($fleetConfig['strict_host_key_checking']);
     }
 
     // construct cloud-config.yml
@@ -74,13 +60,6 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     if (!array_key_exists('write_files', $cloudConfig)) {
         $cloudConfig['write_files'] = array();
     }
-
-    $cloudConfig['write_files'][] = array(
-        'owner'         => 'root:root',
-        'permissions'   => '0644',
-        'path'          => '/etc/fleetctl.env',
-        'content'       => $fleetctlEnvFileContent
-    );
 
     $fleetmetaEnvFileContent = "";
 
