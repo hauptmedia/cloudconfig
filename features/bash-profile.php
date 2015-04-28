@@ -5,6 +5,7 @@ return function($clusterConfig, $nodeConfig) {
         "\n" .
         "if [ -f /etc/etcdctl.env ]; then\n".
         "  . /etc/etcdctl.env\n" .
+        "  export ETCDCTL_PEERS ETCDCTL_CA_FILE ETCDCTL_KEY_FILE ETCDCTL_CERT_FILE\n".
         "fi\n" .
         "if [ -z \"\$SSH_AUTH_SOCK\" ] && [ -e /tmp/ssh-agent.sock ]; then\n" .
         "  export SSH_AUTH_SOCK=/tmp/ssh-agent.sock\n" .
