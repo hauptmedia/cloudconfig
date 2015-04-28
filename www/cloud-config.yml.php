@@ -32,7 +32,7 @@ try {
 
     foreach($nodeConfig['features'] as $feature) {
         if(!file_exists("../features/" . $feature . ".php")) {
-            throw new \Exception("Unkwnown feature: " . $feature);
+            throw new \Exception("Unknown feature: " . $feature);
         }
 
         $featureFn          = require("../features/" . $feature . ".php");
@@ -101,19 +101,24 @@ if(array_key_exists('format', $_GET) && $_GET['format'] == 'sh') {
  * @param $nodeConfigs
  */
 function extract_etcd_peers($nodeConfigs) {
-    $etcdPeers = "";
+    $etcdPeers = array();
 
-
-    return $etcdPeers;
-/*
-    //collect etcd peers from cluster configuration
     foreach($nodeConfigs as $nodeConfig) {
-        if(in_array('etcd2', $enabledFeatures)) {
-            print_r($nodeConfig['etcd2']);
+        if(!in_array('etcd2', $nodeConfig['features'])) {
+            continue;
         }
+
+        $featureFn          = require("../features/etcd2.php");
+        $featureCloudConfig = call_user_func($featureFn, array(), $nodeConfig);
+
+        if(!array_key_exists('coreos', $featureCloudConfig) || !array_key_exists('etcd2', $featureCloudConfig['coreos'])) {
+            continue;
+        }
+
+        $etcdPeers = array_merge($etcdPeers, explode(",", $featureCloudConfig['coreos']['etcd2']['advertise-client-urls']));
     }
 
-*/
+    return implode(",", $etcdPeers);
 }
 
 /**
