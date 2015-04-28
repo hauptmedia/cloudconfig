@@ -1,0 +1,7 @@
+#!/bin/sh
+
+PRIMARY_NIC=$(ls /sys/class/net/|grep -v veth | grep -v docker | grep -v lo | xargs | cut -d" " -f1)
+
+IP_ADDRESS=$(ip addr show ${PRIMARY_NIC}| awk '/inet /{print $2}' | cut -d"/" -f1 | xargs | cut -d" " -f1)
+
+echo $IP_ADDRESS

@@ -4,7 +4,14 @@ cluster:
     - etcd-ssl
     - fleet
     - mount
-    
+    - timezone
+    - private-repository
+
+  private-repository:
+    insecure-addr: "10.0.0.0/8"
+
+  timezone: Europe/Berlin
+
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd:
     discovery: https://discovery.etcd.io/xyz

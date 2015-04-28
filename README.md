@@ -14,6 +14,9 @@ cluster:
     - etcd-ssl
     - fleet
     - mount
+    - timezone
+
+  timezone: Europe/Berlin
 
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd:
@@ -94,6 +97,10 @@ curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 
 ## Available features & config options
 
+### bash-profile
+
+Writes a `/home/core/.bash_profile` file and register the ssh-agent at `/tmp/ssh-agent.sock` if available.
+
 ### etcd
 
 Run the etcd service
@@ -107,20 +114,6 @@ Run the etcd service
 #### References
 * https://coreos.com/docs/distributed-configuration/etcd-configuration/
 
-### update
-
-Configures the update strategy on a cluster or node level. This feature is always enabled.
-
-#### configuration options
-* `cluster[update][reboot-strategy]` `node[update][reboot-strategy]` - reboot | etcd-lock | best-effort | off (defaults to off)
-* `cluster[update][group]` `node[update][group]` - master | alpha | beta | stable (defaults to stable)
-* `cluster[update][server]` `node[update][server]` - location of the CoreUpdate server
-
-#### References
-* https://coreos.com/docs/cluster-management/setup/update-strategies/
-* https://coreos.com/docs/cluster-management/setup/switching-channels/
-* https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
-
 ### etcd-ssl
 
 Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and client, 
@@ -128,46 +121,94 @@ server and peer certs for each cluster node.
 
 **The IP addresses used by etcd must be integrated into the certificate.**
 
-#### generating the certificates
-Create a certificate authority (once)
+You can use the scripts provided in the https://github.com/hauptmedia/ssl-cert repository to manage your etcd ssl certificates.
+
+Please refer to the README.md file in the ssl-cert repository for further information.
+
+### Creating the certificates
 
 ```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-ca
-````
+mkdir var/etcd-ca
+create-ca -d var/etcd-ca
+bin/create-etcd-cert -t server -c coreos-1.skydns.io -i 192.168.1.2 
+bin/create-etcd-cert -t client -c coreos-1.skydns.io -i 192.168.1.2
+bin/create-etcd-cert -t peer -c coreos-1.skydns.io -i 192.168.1.2
+```
 
-For each node generate a server, peer and client certificate
+### Testing authentification
 
 ```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-peer-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
+curl --cert /etc/ssl/etcd/certs/client.crt \
+     --cacert /etc/ssl/etcd/certs/ca.crt  \
+     --key /etc/ssl/etcd/private/client.key \
+     -v https://127.0.0.1:2379/v2/leader
 
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
-
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-client-cert 1.etcd.example.com
-````
+curl --cert /etc/ssl/etcd/certs/client.crt \
+     --cacert /etc/ssl/etcd/certs/ca.crt  \
+     --key /etc/ssl/etcd/private/client.key \
+     -v https://127.0.0.1:2379/v2/peers
+       
+curl --cert /etc/ssl/etcd/certs/client.crt \
+     --cacert /etc/ssl/etcd/certs/ca.crt  \
+     --key /etc/ssl/etcd/private/client.key -v \
+     -XPUT -v -L -d value=bar https://127.0.0.1:2379/v2/keys/foo
+ 
+curl --cert /etc/ssl/etcd/certs/client.crt \
+     --cacert /etc/ssl/etcd/certs/ca.crt  \
+     --key /etc/ssl/etcd/private/client.key -v \
+     -XDELETE -v -L https://127.0.0.1:2379/v2/keys/foo
+```
 
 #### References
 * https://coreos.com/docs/distributed-configuration/customize-etcd-unit/
 * https://coreos.com/docs/distributed-configuration/etcd-security/
 
+### flannel
+
+Starts flanneld service. Will be automatically configured for etcd ssl access if etcd-ssl was enabled.
+It will also automatically write the specified network settings in etcd.
+
+#### configuration options
+* `cluster[flannel][network]` `node[flannel][network]`
+* `cluster[flannel][subnet_len]` `node[flannel][subnet_len]`
+* `cluster[flannel][subnet_min]` `node[flannel][subnet_min]`
+* `cluster[flannel][subnet_max]` `node[flannel][subnet_max]`
+* `cluster[flannel][backend_type]` `node[flannel][backend_type]` - vxlan | udp - defaults to vxlan
+
+#### References
+* https://coreos.com/docs/cluster-management/setup/flannel-config/
+* https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
+
+
 ### fleet
 
-Run the fleet service. Automaticly configures itself for etcd-ssl if etcd-ssl is enabled.
+Runs the fleet service. It automatically configures itself for etcd-ssl if etcd-ssl is enabled.
+
+This feature writes a `/etc/fleet-metadata.env` file which contains the fleet metadata as environment variables.
+
+The fleet metadata keys will be transformed to uppercase. E.g. fleet metadata "dc=dc1,rack=12" will 
+be available as `DC=dc1` `RACK=12`
+
+The env file can be used to pass the fleet metadata as environment variables in docker containers
+with the `--env-file=/etc/fleet-metadata.env` docker command line option or in systemd service definitions
+using the `EnvironmentFile=/etc/fleet-metadata.env` configuration option.
+
+This feature also writes a `/etc/fleetctl.env` file which can be used to provide a configuration to `fleetctl`.
+
+#### configuration options
+
+All default fleet configuration options are available plus:
+
+* `cluster[fleet][verbosity]` `node[fleet][verbosity]` Enable debug logging by setting this to an integer value greater than zero. Only a single debug level exists, so all values greater than zero are considered equivalent. Default: 0
+* `cluster[fleet][etcd_servers]` `node[fleet][etcd_servers]` Provide a custom set of etcd endpoints. Default: ["http://127.0.0.1:4001"]
+* `cluster[fleet][etcd_request_timeout]` `node[fleet][etcd_request_timeout]` Amount of time in seconds to allow a single etcd request before considering it failed. Default: 1.0 
+* `cluster[fleet][etcd_cafile,etcd_keyfile,etcd_certfile]` `node[fleet][etcd_cafile,etcd_keyfile,etcd_certfile]` Provide TLS configuration when SSL certificate authentication is enabled in etcd endpoints
+* `cluster[fleet][public_ip]` `node[fleet][public_ip]` IP address that should be published with the local Machine's state and any socket information. If not set, fleetd will attempt to detect the IP it should publish based on the machine's IP routing information.
+* `cluster[fleet][metadata]` `node[fleet][metadata]` Comma-delimited key/value pairs that are published with the local to the fleet registry. This data can be used directly by a client of fleet to make scheduling decisions. An example set of metadata could look like: `metadata="region=us-west,az=us-west-1"` 
+* `cluster[fleet][agent_ttl]` `node[fleet][agent_ttl]` An Agent will be considered dead if it exceeds this amount of time to communicate with the Registry. The agent will attempt a heartbeat at half of this value. Default: "30s" 
+* `cluster[fleet][engine_reconcile_interval]` `node[fleet][engine_reconcile_interval]`  Interval at which the engine should reconcile the cluster schedule in etcd. Default: 2
 
 #### Use fleetctl with SSL/TLS configuration shipped with this image
-
-You should create your own client ssl certificate as described in the "Creating a client certificate for etcd" section.
 
 ```bash
 docker run -i -t --rm \
@@ -196,29 +237,42 @@ list-machines
 * https://github.com/coreos/fleet/blob/master/Documentation/deployment-and-configuration.md#configuration
 * https://coreos.com/docs/launching-containers/launching/launching-containers-fleet/
 
-### fleet-metadata-env-file
 
-This feature writes the fleet metadata as an env file in `/etc/fleet-metadata.env`
+### host-env-file
 
-The env file can be used to pass the fleet metadata as environment variables in docker containers
-with the `--env-file=/etc/fleet-metadata.env` docker command line option or in systemd service definitions
-using the `EnvironmentFile=/etc/fleet-metadata.env` configuration option
+This feature writes the some information about the evironment in `/etc/host.env`.
 
-### flannel
+This feature also install the `/opt/bin/getip` script for easy retrieval of the system's main ip address.
 
-Starts flanneld service. Will be automatically configured for etcd ssl access if etcd-ssl was enabled.
-It will also automatically write the specified network settings in etcd.
 
-#### configuration options
-* `cluster[flannel][network]` `node[flannel][network]`
-* `cluster[flannel][subnet_len]` `node[flannel][subnet_len]`
-* `cluster[flannel][subnet_min]` `node[flannel][subnet_min]`
-* `cluster[flannel][subnet_max]` `node[flannel][subnet_max]`
-* `cluster[flannel][backend_type]` `node[flannel][backend_type]` - vxlan | udp - defaults to vxlan
+### mount
+
+Mounts a given device to the specified mount point
+
+* `cluster[mount][dev]` `cluster[mount][dev]` Device which should be mounted
+* `cluster[mount][mount-point]` `cluster[mount][mount-point]` Mount point where the device should be mounted
+* `cluster[mount][type]` `cluster[mount][type]` Filesystem type of the mountpoint
 
 #### References
-* https://coreos.com/docs/cluster-management/setup/flannel-config/
-* https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
+* https://coreos.com/docs/cluster-management/setup/mounting-storage/
+
+
+### private-repository
+
+Add support for private docker repositories 
+
+* `cluster[private-repository][insecure-addr]` `node[private-repository][insecure-addr]` - 
+If the private registry supports only HTTP or HTTPS with an unknown CA certificate specfiy it's address here. CIDR notations are also allowed.
+
+#### References
+
+https://coreos.com/docs/launching-containers/building/registry-authentication/
+
+### set-host-dns-entry
+
+This feature utilizes the `/opt/bin/skydns-set-record` script provided by the `skydns` feature and registers the
+hostname of the node in skydns. This will only work if the hostname was specified as a FQDN and skydns is configured
+to be authoritative for the domain name.
 
 ### skydns
 
@@ -248,129 +302,48 @@ curl -XPUT \
 The skydns feature installs a convenience script which can be used to set hostname records at `/home/core/bin/skydns-set-record`
 
 ```bash
-/home/core/bin/skydns-set-record test.skydns.local 10.10.10.10
+/opt/bin/skydns-set-record test.skydns.local 10.10.10.10
 
 # with ttl (after which the record becomes unavailable)
-/home/core/bin/skydns-set-record test.skydns.local 10.10.10.10 60
+/opt/bin/skydns-set-record test.skydns.local 10.10.10.10 60
 ```
 
 #### References
 * https://github.com/skynetservices/skydns 
 
-### mount
+### ssh-agent
 
-Mounts a given device to the specified mount point
+Runs an ssh-agent for the `core` user. The ssh-agent socket will be available at `/tmp/ssh-agent.sock`.
+ 
+It automatically registers the private key of the `core` user at the agent (assuming that it has no passphrase set).
 
-* `cluster[mount][dev]` `cluster[mount][dev]` Device which should be mounted
-* `cluster[mount][mount-point]` `cluster[mount][mount-point]` Mount point where the device should be mounted
-* `cluster[mount][type]` `cluster[mount][type]` Filesystem type of the mountpoint
+This feature can be used to enable fleetctl ssh authentication on the coreos node. 
+
+### ssh-key
+
+This features writes a private key file for the core user. This is useful in combination with the ssh-agent feature to
+provide authentication credentials for fleetctl.
+
+#### configuration options
+
+* `cluster[ssh-key][private] `node[ssh-key][private]` - Content of the private key file (will be written to `/home/core/.ssh/id_rsa`)
+* `cluster[ssh-key][public] `node[ssh-key][public]` - Content of the public key file (will be written to `/home/core/.ssh/id_rsa.pub`)
+
+
+### timezone
+* `cluster[timezone] `node[timezone]` - Set the timezone to the specified string on a cluster wide or node level
+
+### update
+
+Configures the update strategy on a cluster or node level. This feature is always enabled.
+
+#### configuration options
+* `cluster[update][reboot-strategy]` `node[update][reboot-strategy]` - reboot | etcd-lock | best-effort | off (defaults to off)
+* `cluster[update][group]` `node[update][group]` - master | alpha | beta | stable (defaults to stable)
+* `cluster[update][server]` `node[update][server]` - location of the CoreUpdate server
 
 #### References
-* https://coreos.com/docs/cluster-management/setup/mounting-storage/
-
-
-## Securing etcd with SSL/TLS
-
-In a production environment it might be a good idea to secure etcd with it's integrated SSL/TLS secruity. However etcd
-needs specially crafted certificates to function properly. An *openssl.cnf* with all the needed settings is included in
-this repository.
-
-You can use the provided scripts in *bin* directory to manage your ssl certificates.
-
-### Creating a certificate authority for etcd
-
-Run the *create-etcd-ca* script and provide a volume for the */opt/cloudconfig/var* directory.
-
-The certificates will be saved in *var/etcd-ca*.
-
-```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-ca
-```
-
-### Creating a server or peer certificate for etcd
-
-Run the *create-server-cert* or *create-peer-cert* script with a *common name* and up to *three additional* ip addresses and provide a volume for the */opt/cloudconfig/var* directory.
-
-The certificates will be saved in *var/etcd-ca*.
-
-**Please note: the CommonName must match the name used for the etcd instance**
-
-```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-server-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
-````
-
-```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-peer-cert 1.etcd.example.com 5.6.7.8 192.168.2.2
-````
-
-### Creating a client certificate for etcd
-
-Run the *create-client-cert* script with a *common name* and provide a volume for the */opt/cloudconfig/var* directory.
-
-The certificates will be saved in *var/etcd-ca*.
-
-```bash
-docker run -i -t --rm \
--v $(pwd):/opt/cloudconfig/var \
-hauptmedia/cloudconfig \
-create-etcd-client-cert etcd-client.example.com
-```
-
-
-### Testing authentification
-
-```bash
-curl --cert /etc/ssl/etcd/certs/client.crt \
-     --cacert /etc/ssl/etcd/certs/ca.crt  \
-     --key /etc/ssl/etcd/private/client.key \
-     -v https://127.0.0.1:2379/v2/leader
-
-curl --cert /etc/ssl/etcd/certs/client.crt \
-     --cacert /etc/ssl/etcd/certs/ca.crt  \
-     --key /etc/ssl/etcd/private/client.key \
-     -v https://127.0.0.1:2379/v2/peers
-       
-curl --cert /etc/ssl/etcd/certs/client.crt \
-     --cacert /etc/ssl/etcd/certs/ca.crt  \
-     --key /etc/ssl/etcd/private/client.key -v \
-     -XPUT -v -L -d value=bar https://127.0.0.1:2379/v2/keys/foo
- 
-curl --cert /etc/ssl/etcd/certs/client.crt \
-     --cacert /etc/ssl/etcd/certs/ca.crt  \
-     --key /etc/ssl/etcd/private/client.key -v \
-     -XDELETE -v -L https://127.0.0.1:2379/v2/keys/foo
-
-
-```
-
-### Certificate requirements in detail
-
-#### Client certificate requirements
-* IP address of the client has to be included as *subjectAltName* on the certificate. In order to get *subjectAltName* you need to enable relevant *X509.3* extension
-* Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Client Authentication*.
-
-#### Peer certificate requirements
-* Similarly to client certificate, the IP address has to be included in *SAN*. See above for details.
-* Certificate has to have *Extended key usage* extension enabled and allow *TLS Web Server Authentication*.
-
-
-### References
-* https://coreos.com/docs/distributed-configuration/etcd-security/
-* http://blog.skrobul.com/securing_etcd_with_tls/
-* https://github.com/kelseyhightower/etcd-production-setup
-* http://www.g-loaded.eu/2005/11/10/be-your-own-ca/
-
-## References on third party websites and the CoreOS documentation
-
-* https://coreos.com/docs/launching-containers/building/customizing-docker/
-* https://coreos.com/docs/launching-containers/building/registry-authentication/
+* https://coreos.com/docs/cluster-management/setup/update-strategies/
+* https://coreos.com/docs/cluster-management/setup/switching-channels/
+* https://coreos.com/docs/cluster-management/setup/cloudinit-cloud-config/
 

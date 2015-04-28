@@ -43,14 +43,15 @@ try {
     $defaultFeatures                    = array('update');
     $features                           = $clusterConfig["features"];
     $features                           = array_merge($features, $defaultFeatures);
-    
+
     foreach($features as $feature) {
         if(!file_exists("../features/" . $feature . ".php")) {
             throw new \Exception("Unkwnown feature: " . $feature);
         }
         
         $featureFn = require("../features/" . $feature . ".php");
-        $cloudConfig = call_user_func($featureFn, $clusterConfig, $nodeConfig, $cloudConfig);
+
+        $cloudConfig = call_user_func($featureFn, $clusterConfig, $nodeConfig, $cloudConfig, $features);
     }
 
     $dumper = new Dumper();

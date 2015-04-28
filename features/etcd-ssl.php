@@ -1,5 +1,5 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig) {
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     // merge config  node <= cluster <= defaults
     $etcdSslConfig = array();
 
@@ -35,7 +35,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
         "Environment=ETCD_KEY_FILE=/etc/ssl/etcd/private/server.key\n";
 
     $requiredFiles = array(
-        $etcdCADir . '/certs/etcd-ca.crt'                             => '/etc/ssl/etcd/certs/ca.crt',
+        $etcdCADir . '/certs/ca.crt'                             => '/etc/ssl/etcd/certs/ca.crt',
         $etcdCADir . '/certs/' .      $etcdName . "-peer.crt"              => '/etc/ssl/etcd/certs/peer.crt',
         $etcdCADir . '/private/' .    $etcdName . "-peer.key"              => '/etc/ssl/etcd/private/peer.key',
         $etcdCADir . '/certs/' .      $etcdName . "-server.crt"              => '/etc/ssl/etcd/certs/server.crt',

@@ -1,5 +1,5 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig) {
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     // determine which features are active for this node
     $enabledFeatures = array();
 
@@ -96,19 +96,35 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     );
     
     $cloudConfig['write_files'][] = array(
-        'path'          => '/home/core/bin/skydns-set-record',
+        'path'          => '/opt/bin/skydns-set-record',
         'permissions'   => '0755',
         'content'       => file_get_contents(
              __DIR__ . '/../bin/skydns-set-record'
         )
     );
-    
-    
+
+    $dockerOpts = "--dns=\"" . $dnsIp . "\" --dns-search=\"" . $dnsDomain . "\"";
+
+    //HACK: add option from private-repository features to dockerOpts because we're overriding the DOCKER_OPTS environment variable
+    if(in_array('private-repository', $enabledFeatures)) {
+        $privateRepositoryConfig = array();
+
+        if(!empty($clusterConfig['private-repository'])) {
+            $privateRepositoryConfig = array_merge($privateRepositoryConfig, $clusterConfig['private-repository']);
+        }
+
+        if(!empty($nodeConfig['private-repository'])) {
+            $privateRepositoryConfig = array_merge($privateRepositoryConfig, $nodeConfig['private-repository']);
+        }
+
+        $dockerOpts .= " --insecure-registry=\"" . $privateRepositoryConfig['insecure-addr'] ."\"";
+    }
+
     $cloudConfig['write_files'][] = array(
-        'path'          => '/etc/systemd/system/docker.service.d/50-skydns.conf',
+        'path'          => '/etc/systemd/system/docker.service.d/50-docker-opts.conf',
         'content'       =>
             "[Service]\n" .
-            "Environment=DOCKER_OPTS='--dns=\"" . $dnsIp . "\" --dns-search=\"" . $dnsDomain . "\"'"
+            "Environment='DOCKER_OPTS=" . $dockerOpts . "'"
     );
 
     $cloudConfig['coreos']['units'][] = array(

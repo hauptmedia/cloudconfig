@@ -1,43 +1,34 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig) {
+//TODO: Add support for private repositories with authentification
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
+    $privateRepositoryConfig = array();
 
-    if(!array_key_exists('coreos', $cloudConfig)) {
-        $cloudConfig['coreos'] = array();
+    if(!empty($clusterConfig['private-repository'])) {
+        $privateRepositoryConfig = array_merge($privateRepositoryConfig, $clusterConfig['private-repository']);
     }
 
-    if(!array_key_exists('units', $cloudConfig['coreos'])) {
-        $cloudConfig['coreos']['units'] = array();
+    if(!empty($nodeConfig['private-repository'])) {
+        $privateRepositoryConfig = array_merge($privateRepositoryConfig, $nodeConfig['private-repository']);
     }
-    
-    $cloudConfig['coreos']['units'][] = array(
-        'name'      => 'format-ephemeral.service',
-        'command'   => 'start',
-        'content'   => 
-            "[Unit]\n" .
-            "Description=Formats the ephemeral drive\n" .
-            "[Service]\n" .
-            "Type=oneshot\n" .
-            "RemainAfterExit=yes\n" .
-            "ExecStart=/usr/sbin/wipefs -f /dev/sdb\n" .
-            "ExecStart=/usr/sbin/mke2fs -q -t ext4 -b 4096 -i 4096 -I 128 /dev/sdb\n"
+
+    //Skip writing the DOCKER_OPTS file, if skydns is already defined, as it will override DOCKER_OPTS, too
+    //there is currently a hack inside the skydns which will add the insecure-registry flat inside the skydns feature
+    if(!in_array('skydns', $enabledFeatures) &&
+        array_key_exists('insecure-addr', $privateRepositoryConfig)) {
+
+        if (!array_key_exists('write_files', $cloudConfig)) {
+            $cloudConfig['write_files'] = array();
+        }
+
+        $cloudConfig['write_files'][] = array(
+            'path'          => '/etc/systemd/system/docker.service.d/50-docker-opts.conf',
+            'content'       =>
+                "[Service]\n" .
+                "Environment='DOCKER_OPTS=--insecure-registry=\"" . $privateRepositoryConfig['insecure-addr'] . "\"'\n"
+
         );
+    }
 
-    $cloudConfig['coreos']['units'][] = array(
-        'name'      => 'var-lib-docker.mount',
-        'command'   => 'start',
-        'content'   => 
-            "[Unit]\n" .
-            "Description=Mount ephemeral to /var/lib/docker\n" .
-            "Requires=format-ephemeral.service\n" .
-            "After=format-ephemeral.service\n" .
-            "Before=docker.service\n" .
-            "[Mount]\n" .
-            "What=/dev/sdb\n" .
-            "Where=/var/lib/docker\n" .
-            "Type=ext4\n"
-    );
-
-            
     return $cloudConfig;
 
 };

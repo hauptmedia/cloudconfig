@@ -1,29 +1,31 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig) {
-    // determine which features are active for this node
-    $enabledFeatures = array();
-
-    if(!empty($clusterConfig['features'])) {
-        $enabledFeatures = array_merge($enabledFeatures, $clusterConfig['features']);
-    }
-
-    if(!empty($nodeConfig['features'])) {
-        $enabledFeatures = array_merge($enabledFeatures, $nodeConfig['features']);
-    }
-
-
-    // merge config  node <= cluster <= defaults
+return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     $useSSL = in_array('etcd-ssl', $enabledFeatures);
 
-    $fleetConfig = array();
-    
+    if(!array_key_exists('etcd', $cloudConfig['coreos'])) {
+        throw new \Exception("etcd feature must be enabled before fleet");
+    }
+
+    $etcdEndpoint   = $useSSL ?
+        "https://" . $cloudConfig['coreos']['etcd']['addr'] :
+        "http://" . $cloudConfig['coreos']['etcd']['addr'];
+
+    $fleetConfig = array(
+        'etcd_servers' => $etcdEndpoint
+    );
+
+    if(!empty($clusterConfig['fleet'])) {
+        $fleetConfig = array_merge($fleetConfig, $clusterConfig['fleet']);
+    }
+
+    if(!empty($nodeConfig['fleet'])) {
+        $fleetConfig = array_merge($fleetConfig, $nodeConfig['fleet']);
+    }
+
     if($useSSL) {
-        $fleetConfig['etcd_servers']        = "https://127.0.0.1:2379";
         $fleetConfig['etcd_cafile']         = "/etc/ssl/etcd/certs/ca.crt";
         $fleetConfig['etcd_keyfile']        = "/etc/ssl/etcd/private/client.key";
         $fleetConfig['etcd_certfile']       = "/etc/ssl/etcd/certs/client.crt";
-    } else {
-        $fleetConfig['etcd_servers']        = "http://127.0.0.1:2379";
     }
 
     if(!empty($nodeConfig['ip'])) {
@@ -53,6 +55,30 @@ return function($clusterConfig, $nodeConfig, $cloudConfig) {
     );
 
     $cloudConfig['coreos']['fleet'] = $fleetConfig;
+
+
+    if (!array_key_exists('write_files', $cloudConfig)) {
+        $cloudConfig['write_files'] = array();
+    }
+
+    $fleetmetaEnvFileContent = "";
+
+    if(!empty($fleetConfig["metadata"])) {
+        $metaDataEntries = explode(",", $fleetConfig["metadata"]);
+
+        foreach ($metaDataEntries as $metaDataEntry) {
+            list($key, $value) = explode("=", $metaDataEntry);
+
+            $fleetmetaEnvFileContent .= strtoupper($key) . "=" . $value . "\n";
+        }
+
+        $cloudConfig['write_files'][] = array(
+            'owner'         => 'root:root',
+            'permissions'   => '0644',
+            'path'          => '/etc/fleet-metadata.env',
+            'content'       => $fleetmetaEnvFileContent
+        );
+    }
 
     return $cloudConfig;
 
