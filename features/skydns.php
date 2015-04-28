@@ -99,7 +99,7 @@ return function($clusterConfig, $nodeConfig) {
                         "Environment=\"ETCD_SSL_DIR=/etc/ssl/etcd\"\n".
                         "ExecStartPre=/usr/bin/mkdir -p /run/skydns\n" .
                         "ExecStartPre=/bin/cp /etc/skydns-options.env /run/skydns/options.env\n" .
-                        "ExecStartPre=/usr/bin/curl " . $curlOpts . " -L -XPUT " . $etcdEndpoint . "/v2/keys/skydns/config --data-urlencode value@/etc/skydns-config.json\n" .
+                        "ExecStartPre=/usr/bin/curl " . $curlOpts . " -L -XPUT " . explode(",",$etcdEndpoint)[0] . "/v2/keys/skydns/config --data-urlencode value@/etc/skydns-config.json\n" .
                         "ExecStartPre=-/usr/bin/docker kill skydns\n" .
                         "ExecStartPre=-/usr/bin/docker rm skydns\n" .
                         "ExecStart=/usr/bin/docker run --net=host --privileged=true --rm --env-file=/run/skydns/options.env -v /run/skydns:/run/skydns -v \${ETCD_SSL_DIR}:/etc/ssl/etcd:ro --name skydns skynetservices/skydns\n" .
