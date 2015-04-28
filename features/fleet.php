@@ -1,6 +1,6 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
-    $useSSL             = in_array('etcd2-ssl', $nodeConfig['features']);
+    $useSSL             = in_array('etcd2-client-ssl', $nodeConfig['features']);
     $fleetConfig        = array_key_exists('fleet', $nodeConfig) ? $nodeConfig['fleet'] : array();
 
     if(!array_key_exists('etcd_servers', $fleetConfig)) {
