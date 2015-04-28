@@ -14,7 +14,6 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         'content'   =>
             "[Unit]\n" .
             "Description=Set the dns entry for this host\n" .
-            "Wants=etcd.service\n" .
             "[Service]\n" .
             "Type=simple\n" .
             "EnvironmentFile=/etc/host.env\n".

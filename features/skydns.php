@@ -11,15 +11,15 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         $enabledFeatures = array_merge($enabledFeatures, $nodeConfig['features']);
     }
     
-    $useSSL = in_array('etcd-ssl', $enabledFeatures);
+    $useSSL = in_array('etcd2-ssl', $enabledFeatures);
 
-    if(!array_key_exists('etcd', $cloudConfig['coreos'])) {
-        throw new \Exception("etcd feature must be enabled before skydns");
+    if(!array_key_exists('etcd2', $cloudConfig['coreos'])) {
+        throw new \Exception("etcd2 feature must be enabled before skydns");
     }
 
     $etcdEndpoint   = $useSSL ?
-        "https://" . $cloudConfig['coreos']['etcd']['addr'] :
-        "http://" . $cloudConfig['coreos']['etcd']['addr'];
+        "https://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'] :
+        "http://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
     
     
     if(!array_key_exists('ip', $nodeConfig)) {
@@ -133,7 +133,6 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         'content'   =>
             "[Unit]\n" .
             "Description=SkyDNS Service\n" .
-            "Wants=etcd.service\n" .
             "After=docker.service\n" .
             "\n" .
             "[Service]\n" .

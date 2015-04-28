@@ -1,14 +1,14 @@
 <?php
 return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     // merge config  node <= cluster <= defaults
-    $etcdSslConfig = array();
+    $etcd2SslConfig = array();
 
-    if(!empty($clusterConfig['etcd-ssl'])) {
-        $etcdSslConfig = array_merge($etcdSslConfig, $clusterConfig['etcd-ssl']);
+    if(!empty($clusterConfig['etcd2-ssl'])) {
+        $etcd2SslConfig = array_merge($etcd2SslConfig, $clusterConfig['etcd2-ssl']);
     }
 
-    if(!empty($nodeConfig['etcd-ssl'])) {
-        $etcdSslConfig = array_merge($etcdSslConfig, $nodeConfig['etcd-ssl']);
+    if(!empty($nodeConfig['etcd2-ssl'])) {
+        $etcd2SslConfig = array_merge($etcd2SslConfig, $nodeConfig['etcd2-ssl']);
     }
 
     // construct cloud-config.yml
@@ -16,8 +16,8 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         $cloudConfig['write_files'] = array();
     }
 
-    if (!empty($nodeConfig['etcd']['name'])) {
-        $etcdName = $nodeConfig['etcd']['name'];
+    if (!empty($nodeConfig['etcd2']['name'])) {
+        $etcdName = $nodeConfig['etcd2']['name'];
         
     } elseif (!empty($nodeConfig['hostname'])) {
         $etcdName = $nodeConfig['hostname'];
@@ -27,9 +27,11 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
 
     $serviceDefinition = 
         "[Service]\n" .
+        "Environment=ETCD_PEER_CLIENT_CERT_AUTH=true\n" .
         "Environment=ETCD_PEER_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" .
         "Environment=ETCD_PEER_CERT_FILE=/etc/ssl/etcd/certs/peer.crt\n" .
         "Environment=ETCD_PEER_KEY_FILE=/etc/ssl/etcd/private/peer.key\n" .
+        "Environment=ETCD_CLIENT_CERT_AUTH=true\n" .
         "Environment=ETCD_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" .
         "Environment=ETCD_CERT_FILE=/etc/ssl/etcd/certs/server.crt\n" .
         "Environment=ETCD_KEY_FILE=/etc/ssl/etcd/private/server.key\n";
@@ -46,7 +48,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         
 
     $cloudConfig['write_files'][] = array(
-        'path'          => '/run/systemd/system/etcd.service.d/30-certificates.conf',
+        'path'          => '/run/systemd/system/etcd2.service.d/30-certificates.conf',
         'permissions'   => '0644',
         'content'       => $serviceDefinition
     );

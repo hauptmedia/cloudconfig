@@ -1,17 +1,17 @@
 <?php
 return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
-    $useSSL = in_array('etcd-ssl', $enabledFeatures);
+    $useSSL = in_array('etcd2-ssl', $enabledFeatures);
 
-    if(!array_key_exists('etcd', $cloudConfig['coreos'])) {
-        throw new \Exception("etcd feature must be enabled before fleet");
+    if(!array_key_exists('etcd2', $cloudConfig['coreos'])) {
+        throw new \Exception("etcd2 feature must be enabled before fleet");
     }
 
-    $etcdEndpoint   = $useSSL ?
-        "https://" . $cloudConfig['coreos']['etcd']['addr'] :
-        "http://" . $cloudConfig['coreos']['etcd']['addr'];
+    $etcd2Endpoint   = $useSSL ?
+        "https://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'] :
+        "http://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
 
     $fleetConfig = array(
-        'etcd_servers' => $etcdEndpoint
+        'etcd_servers' => $etcd2Endpoint
     );
 
     if(!empty($clusterConfig['fleet'])) {
