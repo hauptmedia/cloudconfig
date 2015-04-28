@@ -1,5 +1,7 @@
 <?php
 return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
+    $useSSL = in_array('etcd2-ssl', $enabledFeatures);
+
     // determine which features are active for this node
     $enabledFeatures = array();
 
@@ -10,18 +12,13 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     if(!empty($nodeConfig['features'])) {
         $enabledFeatures = array_merge($enabledFeatures, $nodeConfig['features']);
     }
-    
-    $useSSL = in_array('etcd2-ssl', $enabledFeatures);
 
     if(!array_key_exists('etcd2', $cloudConfig['coreos'])) {
         throw new \Exception("etcd2 feature must be enabled before skydns");
     }
 
-    $etcdEndpoint   = $useSSL ?
-        "https://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'] :
-        "http://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
-    
-    
+    $etcdEndpoint   = $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
+
     if(!array_key_exists('ip', $nodeConfig)) {
         throw new \Exception("Missing ip in nodeConfig");
     }

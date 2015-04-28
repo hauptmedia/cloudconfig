@@ -7,9 +7,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         throw new \Exception("etcd2 feature must be enabled before flannel");
     }
     
-    $etcdEndpoint   = $useSSL ? 
-        "https://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'] :
-        "http://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
+    $etcdEndpoint   = $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
         
     $flannelConfig = array(
         'etcd_prefix'       => '/coreos.com/network',
