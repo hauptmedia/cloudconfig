@@ -1,23 +1,15 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
-    $useSSL = in_array('etcd2-ssl', $enabledFeatures);
+return function($clusterConfig, $nodeConfig) {
+    $useSSL             = in_array('etcd2-ssl', $nodeConfig['features']);
+    $fleetConfig        = array_key_exists('fleet', $nodeConfig) ? $nodeConfig['fleet'] : array();
 
-    if(!array_key_exists('etcd2', $cloudConfig['coreos'])) {
-        throw new \Exception("etcd2 feature must be enabled before fleet");
+    if(!array_key_exists('etcd_servers', $fleetConfig)) {
+        $fleetConfig['etcd_servers'] = $clusterConfig['etcd-peers'];
     }
 
-    $etcd2Endpoint   = $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
 
-    $fleetConfig = array(
-        'etcd_servers' => $etcd2Endpoint
-    );
-
-    if(!empty($clusterConfig['fleet'])) {
-        $fleetConfig = array_merge($fleetConfig, $clusterConfig['fleet']);
-    }
-
-    if(!empty($nodeConfig['fleet'])) {
-        $fleetConfig = array_merge($fleetConfig, $nodeConfig['fleet']);
+    if(!array_key_exists('public-ip', $fleetConfig) && array_key_exists('ip', $nodeConfig)) {
+        $fleetConfig['public-ip'] = $nodeConfig['ip'];
     }
 
     if($useSSL) {
@@ -26,42 +18,11 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         $fleetConfig['etcd_certfile']       = "/etc/ssl/etcd/certs/client.crt";
     }
 
-    if(!empty($nodeConfig['ip'])) {
-        $fleetConfig['public-ip'] = $nodeConfig['ip'];
-    }
-
-    if(!empty($clusterConfig['fleet'])) {
-        $fleetConfig = array_merge($fleetConfig, $clusterConfig['fleet']);
-    }
-
-    if(!empty($nodeConfig['fleet'])) {
-        $fleetConfig = array_merge($fleetConfig, $nodeConfig['fleet']);
-    }
-
-    // construct cloud-config.yml
-    if(!array_key_exists('coreos', $cloudConfig)) {
-        $cloudConfig['coreos'] = array();
-    }
-
-    if(!array_key_exists('units', $cloudConfig['coreos'])) {
-        $cloudConfig['coreos']['units'] = array();
-    }
-
-    $cloudConfig['coreos']['units'][] = array(
-        'name'      => 'fleet.service',
-        'command'   => 'start'
-    );
-
-    $cloudConfig['coreos']['fleet'] = $fleetConfig;
-
-
-    if (!array_key_exists('write_files', $cloudConfig)) {
-        $cloudConfig['write_files'] = array();
-    }
-
-    $fleetmetaEnvFileContent = "";
+    $writeFiles = array();
 
     if(!empty($fleetConfig["metadata"])) {
+        $fleetmetaEnvFileContent = "";
+
         $metaDataEntries = explode(",", $fleetConfig["metadata"]);
 
         foreach ($metaDataEntries as $metaDataEntry) {
@@ -70,7 +31,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
             $fleetmetaEnvFileContent .= strtoupper($key) . "=" . $value . "\n";
         }
 
-        $cloudConfig['write_files'][] = array(
+        $writeFiles[] = array(
             'owner'         => 'root:root',
             'permissions'   => '0644',
             'path'          => '/etc/fleet-metadata.env',
@@ -78,6 +39,18 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         );
     }
 
-    return $cloudConfig;
+    return array(
+        'coreos' => array(
+            'fleet' => $fleetConfig,
+            'units' => array(
+                array(
+                    'name'      => 'fleet.service',
+                    'command'   => 'start'
+                )
+            )
+
+        ),
+        'write_files' => $writeFiles
+    );
 
 };

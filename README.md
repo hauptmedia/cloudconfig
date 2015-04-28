@@ -27,7 +27,7 @@ cluster:
   etcd2:
     discovery: https://discovery.etcd.io/xyz
 
-  ssh-authorized-keys:
+  ssh_authorized_keys:
     - ssh-rsa ...
 
   update:

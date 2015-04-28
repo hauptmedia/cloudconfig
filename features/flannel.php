@@ -1,17 +1,11 @@
 <?php
-return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
-    // merge config  node <= cluster <= defaults
-    $useSSL = in_array('etcd2-ssl', $enabledFeatures);
+return function($clusterConfig, $nodeConfig) {
+    $useSSL             = in_array('etcd2-ssl', $nodeConfig['features']);
+    $etcdEndpoint       = explode(",", $clusterConfig['etcd-peers'])[0];
 
-    if(!array_key_exists('etcd2', $cloudConfig['coreos'])) {
-        throw new \Exception("etcd2 feature must be enabled before flannel");
-    }
-    
-    $etcdEndpoint   = $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
-        
     $flannelConfig = array(
         'etcd_prefix'       => '/coreos.com/network',
-        'etcd_endpoints'    => $etcdEndpoint,
+        'etcd_endpoints'    => $clusterConfig['etcd-peers'],
         
         'network'           => '10.0.0.0/8',
         'subnet_len'        => 24,
@@ -35,19 +29,6 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         $flannelConfig = array_merge($flannelConfig, $nodeConfig['flannel']);
     }
 
-    // construct cloud-config.yml
-    if(!array_key_exists('coreos', $cloudConfig)) {
-        $cloudConfig['coreos'] = array();
-    }
-
-    if(!array_key_exists('units', $cloudConfig['coreos'])) {
-        $cloudConfig['coreos']['units'] = array();
-    }
-
-    if (!array_key_exists('write_files', $cloudConfig)) {
-        $cloudConfig['write_files'] = array();
-    }
-    
     //extract JSON Config from $flannelConfig
     $flannelJsonConfig = array(
         "Network"       => $flannelConfig['network'],
@@ -75,29 +56,38 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
     $curlOpts = $useSSL ? 
         "--cert /etc/ssl/etcd/certs/client.crt --cacert /etc/ssl/etcd/certs/ca.crt --key /etc/ssl/etcd/private/client.key" : 
         "";
-    
-    $cloudConfig['coreos']['units'][] = array(
-        'name'      => 'flanneld.service',
-        'drop-ins' => array(
+
+
+    return array(
+        'coreos' => array(
+            'flannel' => $flannelConfig,
+
+            'units' => array(
+                array(
+                    'name'      => 'flanneld.service',
+                    'drop-ins' => array(
+                        array(
+                            'name'      => '50-network-config.conf',
+                            'content'   =>
+                                "[Service]\n" .
+                                "ExecStartPre=/usr/bin/curl " . $curlOpts .
+                                " -L -XPUT " . $etcdEndpoint . "/v2/keys" .
+                                $flannelConfig['etcd_prefix'] .
+                                "/config --data-urlencode value@/etc/flannel-network-config.json\n"
+
+                        )),
+                    'command'   => 'start'
+                )
+            )
+        ),
+
+        'write_files' => array(
             array(
-            'name'      => '50-network-config.conf',
-            'content'   => 
-                "[Service]\n" .
-                "ExecStartPre=/usr/bin/curl " . $curlOpts . " -L -XPUT " . $etcdEndpoint . "/v2/keys" . $flannelConfig['etcd_prefix'] . "/config --data-urlencode value@/etc/flannel-network-config.json\n"
-
-         )),
-        'command'   => 'start'
+                'path'          => '/etc/flannel-network-config.json',
+                'permissions'   => '0644',
+                'content'       => json_encode($flannelJsonConfig, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
+            )
+        )
     );
-
-    
-    $cloudConfig['write_files'][] = array(
-        'path'          => '/etc/flannel-network-config.json',
-        'permissions'   => '0644',
-        'content'       => json_encode($flannelJsonConfig, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
-    );
-    
-    $cloudConfig['coreos']['flannel'] = $flannelConfig;
-
-    return $cloudConfig;
 
 };
