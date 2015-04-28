@@ -1,7 +1,8 @@
 cluster:
   features:
-    - etcd
-    - etcd-ssl
+    - etcd2
+    - etcd2-client-ssl
+    - etcd2-ssl
     - fleet
     - mount
     - timezone
@@ -13,7 +14,7 @@ cluster:
   timezone: Europe/Berlin
 
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
-  etcd:
+  etcd2:
     discovery: https://discovery.etcd.io/xyz
 
   ssh-authorized-keys:

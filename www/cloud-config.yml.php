@@ -41,17 +41,17 @@ try {
     $cloudConfig["ssh_authorized_keys"] = $clusterConfig["ssh-authorized-keys"];
     
     $defaultFeatures                    = array('update');
-    $features                           = $clusterConfig["features"];
-    $features                           = array_merge($features, $defaultFeatures);
+    $enabledFeatures                    = $clusterConfig["features"];
+    $enabledFeatures                    = array_merge($enabledFeatures, $defaultFeatures);
 
-    foreach($features as $feature) {
+    foreach($enabledFeatures as $feature) {
         if(!file_exists("../features/" . $feature . ".php")) {
             throw new \Exception("Unkwnown feature: " . $feature);
         }
-        
+
         $featureFn = require("../features/" . $feature . ".php");
 
-        $cloudConfig = call_user_func($featureFn, $clusterConfig, $nodeConfig, $cloudConfig, $features);
+        $cloudConfig = call_user_func($featureFn, $clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures);
     }
 
     $dumper = new Dumper();

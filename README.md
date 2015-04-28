@@ -10,16 +10,21 @@ You can setup your cluster nodes in a yaml based configuration file which must b
 ```yaml
 cluster:
   features:
-    - etcd
-    - etcd-ssl
+    - etcd2
+    - etcd2-client-ssl
+    - etcd2-ssl
     - fleet
     - mount
     - timezone
+    - private-repository
+
+  private-repository:
+    insecure-addr: "10.0.0.0/8"
 
   timezone: Europe/Berlin
 
   # generate a new token for each unique cluster from https://discovery.etcd.io/new
-  etcd:
+  etcd2:
     discovery: https://discovery.etcd.io/xyz
 
   ssh-authorized-keys:
@@ -28,19 +33,19 @@ cluster:
   update:
     reboot-strategy: off
     group: stable
-
+    
   nodes:
     - mac: c8:60:00:cc:xx:8d
       hostname: coreos-1
       ip: 11.22.33.44
-
+      
       fleet:
         metadata: dc=colo1,rack=rack1,disc=ssd,disc_amount=1,mem=32
-
+        
       update:
         group: alpha
-
-
+        
+        
     - mac: c8:60:00:bb:aa:91
       hostname: coreos-2
       ip: 1.2.3.4
@@ -101,22 +106,34 @@ curl -sSL http://cloudconfig.example.com:1234/install.sh | sudo sh
 
 Writes a `/home/core/.bash_profile` file and register the ssh-agent at `/tmp/ssh-agent.sock` if available.
 
-### etcd
+### etcd2
 
-Run the etcd service
+Run the etcd2 service
 
 #### configuration options
-* `node[etcd][name]` - The node name (defaults to `node[hostname]`)
-* `node[etcd][addr]` - The advertised public hostname:port for client communication (defaults to `node[ip]:2379`)
-* `node[etcd][peer-addr]` - The advertised public hostname:port for server communication (defaults to `node[ip]:2380`)
-* `cluster[etcd][discovery]` `node[etcd][discovery]` - A URL to use for discovering the peer list (optional)
+* `node[etcd2][name]` - The node name (defaults to `node[hostname]`)
+* `node[etcd2][advertise-client-urls]` - The advertised public hostname:port for client communication (defaults to `node[ip]:2379`)
+* `node[etcd2][initial-advertise-peer-urls]` - The advertised public hostname:port for server communication (defaults to `node[ip]:2380`)
+* `cluster[etcd2][discovery]` `node[etcd][discovery]` - A URL to use for discovering the peer list (optional)
 
 #### References
 * https://coreos.com/docs/distributed-configuration/etcd-configuration/
 
-### etcd-ssl
+### etcd2-client-ssl
 
-Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and client, 
+Installs client certificates which can be used to connect to a etcd2 cluster.
+
+You can use the scripts provided in the https://github.com/hauptmedia/ssl-cert repository to manage your etcd ssl certificates.
+
+### Creating the certificate
+
+```bash
+bin/create-etcd-cert -t client -c coreos-1.skydns.io
+```
+
+### etcd2-ssl
+
+Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and 
 server and peer certs for each cluster node.
 
 **The IP addresses used by etcd must be integrated into the certificate.**
@@ -131,32 +148,7 @@ Please refer to the README.md file in the ssl-cert repository for further inform
 mkdir var/etcd-ca
 create-ca -d var/etcd-ca
 bin/create-etcd-cert -t server -c coreos-1.skydns.io -i 192.168.1.2 
-bin/create-etcd-cert -t client -c coreos-1.skydns.io -i 192.168.1.2
 bin/create-etcd-cert -t peer -c coreos-1.skydns.io -i 192.168.1.2
-```
-
-### Testing authentification
-
-```bash
-curl --cert /etc/ssl/etcd/certs/client.crt \
-     --cacert /etc/ssl/etcd/certs/ca.crt  \
-     --key /etc/ssl/etcd/private/client.key \
-     -v https://127.0.0.1:2379/v2/leader
-
-curl --cert /etc/ssl/etcd/certs/client.crt \
-     --cacert /etc/ssl/etcd/certs/ca.crt  \
-     --key /etc/ssl/etcd/private/client.key \
-     -v https://127.0.0.1:2379/v2/peers
-       
-curl --cert /etc/ssl/etcd/certs/client.crt \
-     --cacert /etc/ssl/etcd/certs/ca.crt  \
-     --key /etc/ssl/etcd/private/client.key -v \
-     -XPUT -v -L -d value=bar https://127.0.0.1:2379/v2/keys/foo
- 
-curl --cert /etc/ssl/etcd/certs/client.crt \
-     --cacert /etc/ssl/etcd/certs/ca.crt  \
-     --key /etc/ssl/etcd/private/client.key -v \
-     -XDELETE -v -L https://127.0.0.1:2379/v2/keys/foo
 ```
 
 #### References
