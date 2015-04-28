@@ -6,9 +6,7 @@ return function($clusterConfig, $nodeConfig, $cloudConfig, $enabledFeatures) {
         throw new \Exception("etcd2 feature must be enabled before fleet");
     }
 
-    $etcd2Endpoint   = $useSSL ?
-        "https://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'] :
-        "http://" . $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
+    $etcd2Endpoint   = $cloudConfig['coreos']['etcd2']['advertise-client-urls'];
 
     $fleetConfig = array(
         'etcd_servers' => $etcd2Endpoint
