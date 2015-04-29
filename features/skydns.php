@@ -1,7 +1,6 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
     $useSSL                     = in_array('etcd-client-ssl', $nodeConfig['features']);
-    $etcdEndpoint               = $clusterConfig['etcd-peers'];
     $privateRepositoryConfig    = $nodeConfig['private-repository'];
     $skyDnsConfig               = $nodeConfig['skydns'];
 
@@ -63,18 +62,10 @@ return function($clusterConfig, $nodeConfig) {
                 )
             ),
             array(
-                'path'          => '/etc/skydns-config.json',
-                'permissions'   => '0644',
-                'content'       => json_encode(
-                    $skyDnsConfig,
-                    JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT
-                )
-            ),
-            array(
                 'path'          => '/etc/skydns-options.env',
                 'permissions'   => '0644',
                 'content'       =>
-                    "ETCD_MACHINES="    . $etcdEndpoint . "\n" .
+                    "ETCD_MACHINES="    . $clusterConfig['etcd-peers'] . "\n" .
                     "SKYDNS_ADDR="      . $dnsIp . ":" . $dnsPort . "\n" .
                     "SKYDNS_DOMAIN="    . $dnsDomain . "\n" .
                     ($useSSL ? "ETCD_TLSKEY=/etc/ssl/etcd/private/client.key\n" : "" ) .    // path of TLS client certificate - private key
@@ -93,6 +84,23 @@ return function($clusterConfig, $nodeConfig) {
         'coreos' => array(
             'units' => array(
                 array(
+                    'name'      => 'skydns-config.service',
+                    'command'   => 'start',
+                    'content'   =>
+                        "[Unit]\n" .
+                        "Description=Set the skydns config in etcd\n" .
+                        "\n" .
+                        "[Service]\n" .
+                        "Type=oneshot\n" .
+                        "RemainAfterExit=yes\n".
+                        "EnvironmentFile=/etc/etcdctl.env\n".
+                        "ExecStart=/usr/bin/etcdctl set /skydns/config '". json_encode($skyDnsConfig, JSON_UNESCAPED_SLASHES ) ."'\n" .
+                        "\n" .
+                        "[Install]\n".
+                        "WantedBy=multi-user.target"
+                ),
+
+                array(
                     'name'      => 'skydns.service',
                     'command'   => 'start',
                     'content'   =>
@@ -106,7 +114,6 @@ return function($clusterConfig, $nodeConfig) {
                         "Environment=\"ETCD_SSL_DIR=/etc/ssl/etcd\"\n".
                         "ExecStartPre=/usr/bin/mkdir -p /run/skydns\n" .
                         "ExecStartPre=/bin/cp /etc/skydns-options.env /run/skydns/options.env\n" .
-                        "ExecStartPre=/usr/bin/curl " . $curlOpts . " -L -XPUT " . explode(",",$etcdEndpoint)[0] . "/v2/keys/skydns/config --data-urlencode value@/etc/skydns-config.json\n" .
                         "ExecStartPre=-/usr/bin/docker kill skydns\n" .
                         "ExecStartPre=-/usr/bin/docker rm skydns\n" .
                         "ExecStart=/usr/bin/docker run --net=host --privileged=true --rm --env-file=/run/skydns/options.env -v /run/skydns:/run/skydns -v \${ETCD_SSL_DIR}:/etc/ssl/etcd:ro --name skydns skynetservices/skydns\n" .
