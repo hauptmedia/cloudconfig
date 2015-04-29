@@ -59,6 +59,7 @@ return function($clusterConfig, $nodeConfig) {
             'units' => array(
                 array(
                     'name'      => 'flanneld-config.service',
+                    'command'   => 'start',
                     'content'   =>
                         "[Unit]\n" .
                         "Description=Set the flannel config in etcd\n" .
@@ -67,7 +68,7 @@ return function($clusterConfig, $nodeConfig) {
                         "Type=oneshot\n" .
                         "RemainAfterExit=yes\n".
                         "EnvironmentFile=/etc/etcdctl.env\n".
-                        "ExecStart=/usr/bin/etcdctl " . $flannelConfig['etcd_prefix'] . "'". json_encode($flannelJsonConfig, JSON_UNESCAPED_SLASHES ) ."'\n" .
+                        "ExecStart=/usr/bin/etcdctl set " . $flannelConfig['etcd_prefix'] . " '". json_encode($flannelJsonConfig, JSON_UNESCAPED_SLASHES ) ."'\n" .
                         "\n" .
                         "[Install]\n".
                         "WantedBy=multi-user.target"
