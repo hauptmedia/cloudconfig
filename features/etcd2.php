@@ -33,7 +33,20 @@ return function($clusterConfig, $nodeConfig) {
             'units' => array(
                 array(
                     'name'      => 'etcd2.service',
-                    'command'   => 'start'
+                    'command'   => 'start',
+                    'content'   =>
+                        "[Unit]\n" .
+                        "Description=etcd2\n" .
+                        "Conflicts=etcd.service\n" .
+                        "\n" .
+                        "[Service]\n" .
+                        "User=etcd\n".
+                        "Environment=ETCD_DATA_DIR=/var/lib/etcd2\n".
+                        "Environment=ETCD_NAME=%m\n".
+                        "ExecStart=/opt/bin/etcd2\n" .
+                        "Restart=always\n" .
+                        "RestartSec=10s\n" .
+                        "LimitNOFILE=40000\n"
                 )
             )
         ),
