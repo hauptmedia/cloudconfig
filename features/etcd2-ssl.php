@@ -30,13 +30,15 @@ return function($clusterConfig, $nodeConfig) {
     }
 
     $writeFiles[] = array(
-        'path'          => '/run/systemd/system/etcd.service.d/30-certificates.conf',
+        'path'          => '/run/systemd/system/etcd2.service.d/30-certificates.conf',
         'permissions'   => '0644',
         'content'       =>
             "[Service]\n" .
+            "Environment=ETCD_PEER_CLIENT_CERT_AUTH=true\n" .
             "Environment=ETCD_PEER_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" .
             "Environment=ETCD_PEER_CERT_FILE=/etc/ssl/etcd/certs/peer.crt\n" .
             "Environment=ETCD_PEER_KEY_FILE=/etc/ssl/etcd/private/peer.key\n" .
+            "Environment=ETCD_CLIENT_CERT_AUTH=true\n" .
             "Environment=ETCD_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" .
             "Environment=ETCD_CERT_FILE=/etc/ssl/etcd/certs/server.crt\n" .
             "Environment=ETCD_KEY_FILE=/etc/ssl/etcd/private/server.key\n"
