@@ -104,18 +104,28 @@ function extract_etcd_peers($nodeConfigs) {
     $etcdPeers = array();
 
     foreach($nodeConfigs as $nodeConfig) {
-        if(!in_array('etcd2', $nodeConfig['features'])) {
-            continue;
+        if(in_array('etcd2', $nodeConfig['features'])) {
+            $featureFn          = require("../features/etcd2.php");
+            $featureCloudConfig = call_user_func($featureFn, array(), $nodeConfig);
+
+            if(!array_key_exists('coreos', $featureCloudConfig) || !array_key_exists('etcd2', $featureCloudConfig['coreos'])) {
+                continue;
+            }
+
+            $etcdPeers = array_merge($etcdPeers, explode(",", $featureCloudConfig['coreos']['etcd2']['advertise-client-urls']));
+
+        } elseif(in_array('etcd', $nodeConfig['features'])) {
+            $useSSL = in_array('etcd-ssl', $nodeConfig['features']);
+
+            $featureFn          = require("../features/etcd.php");
+            $featureCloudConfig = call_user_func($featureFn, array(), $nodeConfig);
+
+            if(!array_key_exists('coreos', $featureCloudConfig) || !array_key_exists('etcd', $featureCloudConfig['coreos'])) {
+                continue;
+            }
+
+            $etcdPeers = array_merge($etcdPeers, explode(",", ($useSSL ? 'https://' : 'http://' ) . $featureCloudConfig['coreos']['etcd']['addr']));
         }
-
-        $featureFn          = require("../features/etcd2.php");
-        $featureCloudConfig = call_user_func($featureFn, array(), $nodeConfig);
-
-        if(!array_key_exists('coreos', $featureCloudConfig) || !array_key_exists('etcd2', $featureCloudConfig['coreos'])) {
-            continue;
-        }
-
-        $etcdPeers = array_merge($etcdPeers, explode(",", $featureCloudConfig['coreos']['etcd2']['advertise-client-urls']));
     }
 
     return implode(",", $etcdPeers);
