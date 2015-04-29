@@ -1,7 +1,7 @@
 cluster:
   features:
     - etcd2
-    - etcd2-client-ssl
+    - etcd-client-ssl
     - etcd2-ssl
     - fleet
     - mount

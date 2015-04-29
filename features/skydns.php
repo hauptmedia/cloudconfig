@@ -1,6 +1,6 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
-    $useSSL                     = in_array('etcd2-client-ssl', $nodeConfig['features']);
+    $useSSL                     = in_array('etcd-client-ssl', $nodeConfig['features']);
     $etcdEndpoint               = $clusterConfig['etcd-peers'];
     $privateRepositoryConfig    = $nodeConfig['private-repository'];
     $skyDnsConfig               = $nodeConfig['skydns'];

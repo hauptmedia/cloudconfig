@@ -11,7 +11,7 @@ You can setup your cluster nodes in a yaml based configuration file which must b
 cluster:
   features:
     - etcd2
-    - etcd2-client-ssl
+    - etcd-client-ssl
     - etcd2-ssl
     - fleet
     - mount
@@ -119,9 +119,9 @@ Run the etcd2 service
 #### References
 * https://coreos.com/docs/distributed-configuration/etcd-configuration/
 
-### etcd2-client-ssl
+### etcd-client-ssl
 
-Installs client certificates which can be used to connect to a etcd2 cluster.
+Installs client certificates which can be used to connect to a etcd cluster.
 
 You can use the scripts provided in the https://github.com/hauptmedia/ssl-cert repository to manage your etcd ssl certificates.
 

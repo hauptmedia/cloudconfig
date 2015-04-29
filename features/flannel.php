@@ -68,7 +68,7 @@ return function($clusterConfig, $nodeConfig) {
                         "Type=oneshot\n" .
                         "RemainAfterExit=yes\n".
                         "EnvironmentFile=/etc/etcdctl.env\n".
-                        "ExecStart=/usr/bin/etcdctl set " . $flannelConfig['etcd_prefix'] . " '". json_encode($flannelJsonConfig, JSON_UNESCAPED_SLASHES ) ."'\n" .
+                        "ExecStart=/usr/bin/etcdctl set " . $flannelConfig['etcd_prefix'] . "/config '". json_encode($flannelJsonConfig, JSON_UNESCAPED_SLASHES ) ."'\n" .
                         "\n" .
                         "[Install]\n".
                         "WantedBy=multi-user.target"
