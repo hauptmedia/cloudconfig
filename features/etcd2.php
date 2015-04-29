@@ -14,7 +14,7 @@ return function($clusterConfig, $nodeConfig) {
         }
 
         if(!array_key_exists('listen-client-urls', $etcd2Config)) {
-            $etcd2Config['listen-client-urls']          = ($useSSL ? 'https://' : 'http://') . '127.0.0.1:2379,' . ($useSSL ? 'https://' : 'http://') . $nodeConfig['ip'] . ':2379';
+            $etcd2Config['listen-client-urls']          = ($useSSL ? 'https://' : 'http://') . $nodeConfig['ip'] . ':2379';
         }
 
         if(!array_key_exists('initial-advertise-peer-urls', $etcd2Config)) {
@@ -22,7 +22,7 @@ return function($clusterConfig, $nodeConfig) {
         }
 
         if(!array_key_exists('listen-peer-urls', $etcd2Config)) {
-            $etcd2Config['listen-peer-urls']            = ($useSSL ? 'https://' : 'http://') . '127.0.0.1:2380,' . ($useSSL ? 'https://' : 'http://') . $nodeConfig['ip'] . ':2380';
+            $etcd2Config['listen-peer-urls']            = ($useSSL ? 'https://' : 'http://') . $nodeConfig['ip'] . ':2380';
         }
     }
 
