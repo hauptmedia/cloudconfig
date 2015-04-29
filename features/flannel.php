@@ -1,6 +1,6 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
-    $useSSL             = in_array('etcd2-ssl', $nodeConfig['features']);
+    $useSSL             = in_array('etcd-client-ssl', $nodeConfig['features']);
 
     $flannelConfig = array(
         'etcd_prefix'       => '/coreos.com/network',
