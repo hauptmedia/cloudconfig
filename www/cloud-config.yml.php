@@ -22,11 +22,13 @@ try {
         	exit;
 	}
 
+    $nodeConfig = $nodes[0];
+
+
     $clusterConfig = array(
-        'etcd-peers' => extract_etcd_peers($nodeConfigs)
+        'etcd-peers' => extract_etcd_peers($nodeConfigs, $nodeConfig)
     );
 
-	$nodeConfig = $nodes[0];
 
     $destCloudConfig = array();
 
@@ -96,37 +98,51 @@ if(array_key_exists('format', $_GET) && $_GET['format'] == 'sh') {
     print($cloudConfigFileContent);    
 }
 
+
+function extract_etcd_peers_from_nodeconfig($nodeConfig) {
+    if(in_array('etcd2', $nodeConfig['features'])) {
+        $featureFn          = require("../features/etcd2.php");
+        $featureCloudConfig = call_user_func($featureFn, array(), $nodeConfig);
+
+        if(!array_key_exists('coreos', $featureCloudConfig) || !array_key_exists('etcd2', $featureCloudConfig['coreos'])) {
+            return array();
+        }
+
+        return explode(",", $featureCloudConfig['coreos']['etcd2']['advertise-client-urls']);
+
+    } elseif(in_array('etcd', $nodeConfig['features'])) {
+        $useSSL = in_array('etcd-ssl', $nodeConfig['features']);
+
+        $featureFn          = require("../features/etcd.php");
+        $featureCloudConfig = call_user_func($featureFn, array(), $nodeConfig);
+
+        if(!array_key_exists('coreos', $featureCloudConfig) || !array_key_exists('etcd', $featureCloudConfig['coreos'])) {
+            return array();
+        }
+
+        return array(($useSSL ? 'https://' : 'http://' ) . $featureCloudConfig['coreos']['etcd']['addr']);
+    }
+
+}
+
 /**
  * Extracts the etcd peers list from the specified nodeConfigs
  * @param $nodeConfigs
  */
-function extract_etcd_peers($nodeConfigs) {
+function extract_etcd_peers($nodeConfigs, $nodeConfig) {
     $etcdPeers = array();
 
-    foreach($nodeConfigs as $nodeConfig) {
-        if(in_array('etcd2', $nodeConfig['features'])) {
-            $featureFn          = require("../features/etcd2.php");
-            $featureCloudConfig = call_user_func($featureFn, array(), $nodeConfig);
+    foreach($nodeConfigs as $nodeConfigIter) {
 
-            if(!array_key_exists('coreos', $featureCloudConfig) || !array_key_exists('etcd2', $featureCloudConfig['coreos'])) {
-                continue;
-            }
-
-            $etcdPeers = array_merge($etcdPeers, explode(",", $featureCloudConfig['coreos']['etcd2']['advertise-client-urls']));
-
-        } elseif(in_array('etcd', $nodeConfig['features'])) {
-            $useSSL = in_array('etcd-ssl', $nodeConfig['features']);
-
-            $featureFn          = require("../features/etcd.php");
-            $featureCloudConfig = call_user_func($featureFn, array(), $nodeConfig);
-
-            if(!array_key_exists('coreos', $featureCloudConfig) || !array_key_exists('etcd', $featureCloudConfig['coreos'])) {
-                continue;
-            }
-
-            $etcdPeers = array_merge($etcdPeers, explode(",", ($useSSL ? 'https://' : 'http://' ) . $featureCloudConfig['coreos']['etcd']['addr']));
+        if($nodeConfigIter == $nodeConfig) {
+            continue;
         }
+
+        $etcdPeers = array_merge($etcdPeers, extract_etcd_peers_from_nodeconfig($nodeConfigIter));
     }
+
+    //always sort our own endpoint as last one in the list
+    $etcdPeers = array_merge($etcdPeers, extract_etcd_peers_from_nodeconfig($nodeConfig));
 
     return implode(",", $etcdPeers);
 }
