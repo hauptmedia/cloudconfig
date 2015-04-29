@@ -22,6 +22,7 @@ RUN	curl -L --silent ${COREOS_IMAGE_URL} | zcat | cpio -iv && \
 	unsquashfs usr.squashfs && \
 	cp squashfs-root/bin/coreos-cloudinit /usr/local/bin && \
     cp squashfs-root/bin/fleetctl /usr/local/bin && \
+    cp squashfs-root/bin/etcdctl /usr/local/bin && \
     rm -rf /tmp/*
 
 # configure apache & prepare install dir
