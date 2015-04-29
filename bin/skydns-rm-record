@@ -1,0 +1,22 @@
+#!/bin/sh
+
+if [ -z $1 ]; then
+    echo Usage: $0 hostname 1>&2
+    echo 1>&2
+    echo Example: $0 test.skydns.local 1>&2
+    exit 1
+fi
+
+HOSTNAME=$1
+
+if [ ! -f /etc/etcdctl.env ]; then
+    echo Missing /etc/etcdctl.env 1>&2
+    exit 1
+fi
+
+. /etc/etcdctl.env
+export ETCDCTL_PEERS ETCDCTL_CA_FILE ETCDCTL_KEY_FILE ETCDCTL_CERT_FILE
+
+KEY=$(echo -n ${HOSTNAME}. | tac -s'.' | tr . / | sed 's/\/$//')
+
+exec etcdctl rm /skydns/$KEY

@@ -56,6 +56,13 @@ return function($clusterConfig, $nodeConfig) {
                 )
             ),
             array(
+                'path'          => '/opt/bin/skydns-rm-record',
+                'permissions'   => '0755',
+                'content'       => file_get_contents(
+                    __DIR__ . '/../bin/skydns-rm-record'
+                )
+            ),
+            array(
                 'path'          => '/etc/skydns-config.json',
                 'permissions'   => '0644',
                 'content'       => json_encode(
