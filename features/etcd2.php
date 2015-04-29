@@ -29,38 +29,11 @@ return function($clusterConfig, $nodeConfig) {
     return array(
         'coreos' => array(
             'etcd2' => $etcd2Config,
-
             'units' => array(
                 array(
                     'name'      => 'etcd2.service',
-                    'command'   => 'start',
-                    'content'   =>
-                        "[Unit]\n" .
-                        "Description=etcd2\n" .
-                        "Conflicts=etcd.service\n" .
-                        "\n" .
-                        "[Service]\n" .
-                        "User=etcd\n".
-                        "Environment=ETCD_DATA_DIR=/var/lib/etcd2\n".
-                        "Environment=ETCD_NAME=%m\n".
-                        "ExecStart=/opt/bin/etcd2\n" .
-                        "Restart=always\n" .
-                        "RestartSec=10s\n" .
-                        "LimitNOFILE=40000\n"
+                    'command'   => 'start'
                 )
-            )
-        ),
-
-        'write_files' => array(
-            array(
-                'owner'         => 'root:root',
-                'permissions'   => '0644',
-                'path'          => '/etc/etcdctl.env',
-                'content'       =>
-                    "ETCDCTL_PEERS=" . ( array_key_exists('etcd-peers', $clusterConfig) ? $clusterConfig['etcd-peers'] : "" ). "\n" .
-                    ($useSSL ? "ETCDCTL_CA_FILE=/etc/ssl/etcd/certs/ca.crt\n" : "") .
-                    ($useSSL ? "ETCDCTL_KEY_FILE=/etc/ssl/etcd/private/client.key\n" : "") .
-                    ($useSSL ? "ETCDCTL_CERT_FILE=/etc/ssl/etcd/certs/client.crt\n" : "")
             )
         )
     );
