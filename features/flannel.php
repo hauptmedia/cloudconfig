@@ -1,7 +1,6 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
     $useSSL             = in_array('etcd2-ssl', $nodeConfig['features']);
-    $etcdEndpoint       = explode(",", $clusterConfig['etcd-peers'])[0];
 
     $flannelConfig = array(
         'etcd_prefix'       => '/coreos.com/network',
@@ -52,11 +51,6 @@ return function($clusterConfig, $nodeConfig) {
     unset($flannelConfig['subnet_min']);
     unset($flannelConfig['subnet_max']);
     unset($flannelConfig['backend_type']);
-    
-    $curlOpts = $useSSL ? 
-        "--cert /etc/ssl/etcd/certs/client.crt --cacert /etc/ssl/etcd/certs/ca.crt --key /etc/ssl/etcd/private/client.key" : 
-        "";
-
 
     return array(
         'coreos' => array(
@@ -64,28 +58,21 @@ return function($clusterConfig, $nodeConfig) {
 
             'units' => array(
                 array(
+                    'name'      => 'flanneld-config.service',
+                    'content'   =>
+                        "[Unit]\n" .
+                        "Description=Set the flannel config in etcd\n" .
+                        "\n" .
+                        "[Service]\n" .
+                        "Type=oneshot\n" .
+                        "RemainAfterExit=yes\n".
+                        "EnvironmentFile=/etc/etcdctl.env\n".
+                        "ExecStart=/usr/bin/etcdctl " . $flannelConfig['etcd_prefix'] . "'". json_encode($flannelJsonConfig, JSON_UNESCAPED_SLASHES ) ."'\n"
+                ),
+                array(
                     'name'      => 'flanneld.service',
-                    'drop-ins' => array(
-                        array(
-                            'name'      => '50-network-config.conf',
-                            'content'   =>
-                                "[Service]\n" .
-                                "ExecStartPre=/usr/bin/curl " . $curlOpts .
-                                " -L -XPUT " . $etcdEndpoint . "/v2/keys" .
-                                $flannelConfig['etcd_prefix'] .
-                                "/config --data-urlencode value@/etc/flannel-network-config.json\n"
-
-                        )),
                     'command'   => 'start'
                 )
-            )
-        ),
-
-        'write_files' => array(
-            array(
-                'path'          => '/etc/flannel-network-config.json',
-                'permissions'   => '0644',
-                'content'       => json_encode($flannelJsonConfig, JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT)
             )
         )
     );
