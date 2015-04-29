@@ -12,7 +12,7 @@ cluster:
   features:
     - etcd2
     - etcd-client-ssl
-    - etcd2-ssl
+    - etcd-ssl
     - fleet
     - mount
     - timezone
@@ -131,7 +131,7 @@ You can use the scripts provided in the https://github.com/hauptmedia/ssl-cert r
 bin/create-etcd-cert -t client -c coreos-1.skydns.io
 ```
 
-### etcd2-ssl
+### etcd-ssl
 
 Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and 
 server and peer certs for each cluster node.

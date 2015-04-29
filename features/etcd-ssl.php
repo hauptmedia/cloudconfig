@@ -1,19 +1,17 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
-    if(array_key_exists('etcd2', $nodeConfig) && array_key_exists('name', $nodeConfig['etcd2'])) {
-        $etcdName = $nodeConfig['etcd2']['name'];
-    } elseif (array_key_exists('hostname', $nodeConfig)) {
-        $etcdName = $nodeConfig['hostname'];
+    if (!array_key_exists('hostname', $nodeConfig)) {
+        throw new \Exception("Missing hostname");
     }
 
     $etcdCADir = realpath( __DIR__ . '/../var/etcd-ca' );
 
     $requiredFiles = array(
         $etcdCADir . '/certs/ca.crt'                             => '/etc/ssl/etcd/certs/ca.crt',
-        $etcdCADir . '/certs/' .      $etcdName . "-peer.crt"              => '/etc/ssl/etcd/certs/peer.crt',
-        $etcdCADir . '/private/' .    $etcdName . "-peer.key"              => '/etc/ssl/etcd/private/peer.key',
-        $etcdCADir . '/certs/' .      $etcdName . "-server.crt"              => '/etc/ssl/etcd/certs/server.crt',
-        $etcdCADir . '/private/' .    $etcdName . "-server.key"              => '/etc/ssl/etcd/private/server.key'
+        $etcdCADir . '/certs/' .      $nodeConfig['hostname'] . "-peer.crt"              => '/etc/ssl/etcd/certs/peer.crt',
+        $etcdCADir . '/private/' .    $nodeConfig['hostname'] . "-peer.key"              => '/etc/ssl/etcd/private/peer.key',
+        $etcdCADir . '/certs/' .      $nodeConfig['hostname'] . "-server.crt"              => '/etc/ssl/etcd/certs/server.crt',
+        $etcdCADir . '/private/' .    $nodeConfig['hostname'] . "-server.key"              => '/etc/ssl/etcd/private/server.key'
     );
 
 
