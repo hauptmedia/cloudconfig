@@ -121,6 +121,8 @@ function extract_etcd_peers_from_nodeconfig($nodeConfig) {
         }
 
         return array(($useSSL ? 'https://' : 'http://' ) . $featureCloudConfig['coreos']['etcd']['addr']);
+    } else {
+        return array();
     }
 
 }
