@@ -5,8 +5,8 @@ ENV	DEBIAN_FRONTEND             noninteractive
 ENV PATH                        ${CLOUDCONFIG_INSTALL_DIR}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 #Core OS image from where we extract the coreos-cloudinit tool (used to verify cloudinit files)
-ENV	COREOS_CHANNEL_ID           alpha
-ENV	COREOS_VERSION_ID           668.2.0
+ENV	COREOS_CHANNEL_ID           stable
+ENV	COREOS_VERSION_ID           681.2.0
 ENV	COREOS_IMAGE_URL            http://${COREOS_CHANNEL_ID}.release.core-os.net/amd64-usr/${COREOS_VERSION_ID}/coreos_production_pxe_image.cpio.gz
 
 # install required packges
