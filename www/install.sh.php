@@ -1,4 +1,6 @@
 <?php
+require_once('../vendor/autoload.php');
+
 header('Content-Type: text/plain');
 ?>
 #!/bin/sh
