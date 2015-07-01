@@ -1,5 +1,9 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
+    if(!array_key_exists('etcd', $nodeConfig)) {
+        throw new \Exception('missing etcd in nodeConfig');
+    }
+
     $etcdConfig    = $nodeConfig['etcd'];
 
     if(!array_key_exists('name', $etcdConfig) && array_key_exists('hostname', $nodeConfig)) {
