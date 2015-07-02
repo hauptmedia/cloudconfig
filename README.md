@@ -244,6 +244,7 @@ Mounts a given device to the specified mount point
 * `cluster[mount][dev]` `cluster[mount][dev]` Device which should be mounted
 * `cluster[mount][mount-point]` `cluster[mount][mount-point]` Mount point where the device should be mounted
 * `cluster[mount][type]` `cluster[mount][type]` Filesystem type of the mountpoint
+* `cluster[mount][format]` `cluster[mount][format]` If true, the device will be formatted on first system startup
 
 #### References
 * https://coreos.com/docs/cluster-management/setup/mounting-storage/
