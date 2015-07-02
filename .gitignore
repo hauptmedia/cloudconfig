@@ -1,3 +1,5 @@
+composer.phar
+vendor
 var
 .idea
 cloudconfig.iml
