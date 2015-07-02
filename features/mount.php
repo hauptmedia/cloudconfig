@@ -41,7 +41,8 @@ return function($clusterConfig, $nodeConfig) {
                 'content'   =>
                     "[Unit]\n" .
                     "Description=Formats a drive\n" .
-                    "Before=" . $systemdName . "\n" .
+                    "Before=local-fs-pre.target local-fs.target\n" .
+                    "Wants=local-fs-pre.target\n" .
                     "ConditionFirstBoot=yes\n" .
                     "[Service]\n" .
                     "Type=oneshot\n" .
