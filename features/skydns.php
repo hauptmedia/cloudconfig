@@ -41,7 +41,7 @@ return function($clusterConfig, $nodeConfig) {
     $dockerOpts = "--dns=\"" . $dnsIp . "\" --dns-search=\"" . $dnsDomain . "\"";
 
     //HACK: add option from private-repository features to dockerOpts because we're overriding the DOCKER_OPTS environment variable
-    if(in_array('private-repository', $nodeConfig['features'])) {
+    if(in_array('private-repository', $nodeConfig['features']) && array_key_exists('insecure-addr', $privateRepositoryConfig)) {
         $dockerOpts .= " --insecure-registry=\"" . $privateRepositoryConfig['insecure-addr'] ."\"";
     }
 
