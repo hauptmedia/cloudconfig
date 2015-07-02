@@ -20,8 +20,27 @@ return function($clusterConfig, $nodeConfig) {
         );
     }
 
+    if(
+        array_key_exists('username', $privateRepositoryConfig) &&
+        array_key_exists('password', $privateRepositoryConfig) &&
+        array_key_exists('registry', $privateRepositoryConfig)
+    ) {
+        $dockercfg = array(
+            $privateRepositoryConfig['registry'] => array(
+                'auth'  => base64_encode($privateRepositoryConfig['username'] . ':' . $privateRepositoryConfig['password']),
+                'email' => 'username@example.com'
+            )
+        );
+
+        $writeFiles[] = array(
+            'path'          => '/home/core/.dockercfg',
+            'owner'         => 'core:core',
+            'permissions'   => '0644',
+            'content'       => json_encode($dockercfg)
+        );
+    }
+
     return array(
         'write_files' => $writeFiles
-
     );
 };
