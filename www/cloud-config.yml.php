@@ -52,17 +52,21 @@ try {
     $cloudConfigFileContent = "#cloud-config\n";
     $cloudConfigFileContent .= $dumper->dump($destCloudConfig, 6);
 
-    //Validate generated file with coreos-cloudinit
-    $tmpFileName = tempnam("/tmp", "cloud-config.yml");
-    file_put_contents($tmpFileName, $cloudConfigFileContent);
-    exec("/usr/local/bin/coreos-cloudinit -validate --from-file=".escapeshellarg($tmpFileName), $output, $ret);
-    unlink($tmpFileName);
-    
-    if ($ret != 0) {
-        throw new \Exception("coreos-cloudinit validation failed:\n\n" . implode("\n", $output));
-        
+
+    if(file_exists("/usr/local/bin/coreos-cloudinit")) {
+        //Validate generated file with coreos-cloudinit
+        $tmpFileName = tempnam("/tmp", "cloud-config.yml");
+
+        file_put_contents($tmpFileName, $cloudConfigFileContent);
+
+        exec("/usr/local/bin/coreos-cloudinit -validate --from-file=".escapeshellarg($tmpFileName), $output, $ret);
+        unlink($tmpFileName);
+
+        if ($ret != 0) {
+            throw new \Exception("coreos-cloudinit validation failed:\n\n" . implode("\n", $output));
+        }
     }
-    
+
 } catch (\Exception $e) {
 	header('HTTP/1.1 500 Internal server error');
     header("Content-Type: text/plain");
