@@ -28,7 +28,8 @@ try {
 
 
     $clusterConfig = array(
-        'etcd-peers' => extract_etcd_peers($nodeConfigs, $nodeConfig)
+        'ips'           => extract_node_ips($nodeConfigs),
+        'etcd-peers'    => extract_etcd_peers($nodeConfigs, $nodeConfig)
     );
 
 
@@ -153,6 +154,24 @@ function extract_etcd_peers($nodeConfigs, $nodeConfig) {
     $etcdPeers = array_merge($etcdPeers, extract_etcd_peers_from_nodeconfig($nodeConfig));
 
     return implode(",", $etcdPeers);
+}
+
+/**
+ * Extract ips from all server nodes in the cluster
+ * @param $nodeConfigs
+ * @param $nodeConfig
+ * @return string
+ */
+function extract_node_ips($nodeConfigs) {
+    $ips = array();
+
+    foreach($nodeConfigs as $nodeConfigIter) {
+        if(array_key_exists('ip', $nodeConfigIter)) {
+            $ips[] = $nodeConfigIter['ip'];
+        }
+    }
+
+    return $ips;
 }
 
 /**
