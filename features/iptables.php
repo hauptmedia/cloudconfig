@@ -35,6 +35,7 @@ return function($clusterConfig, $nodeConfig) {
 
     $iptablesRules .=
         // Log and drop everything else
+        "\n" .
         "-A Cloudconfig-Firewall-INPUT -j LOG\n" .
         "-A Cloudconfig-Firewall-INPUT -j REJECT --reject-with icmp-host-prohibited\n" .
         "COMMIT\n";
