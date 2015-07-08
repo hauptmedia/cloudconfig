@@ -1,6 +1,6 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
-    $useSSL = in_array('etcd-ssl', $nodeConfig['features']);
+    $useSSL = in_array('etcd-ssl', $nodeConfig['features']) || in_array('etcd2-ssl', $nodeConfig['features']);
 
     return array(
         'write_files' => array(
