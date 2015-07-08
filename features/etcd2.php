@@ -1,6 +1,6 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
-    $useSSL         = in_array('etcd-ssl', $nodeConfig['features']);
+    $useSSL         = in_array('etcd2-ssl', $nodeConfig['features']);
     $etcd2Config    = $nodeConfig['etcd2'];
 
     //try to auto generate etcd2 configuration if no configuration was specified
