@@ -48,7 +48,8 @@ return function($clusterConfig, $nodeConfig) {
             'units' => array(
                 array(
                     'name'      => 'iptables-restore.service',
-                    'enable'    => true
+		    'enable'    => true,
+		    'command'	=> 'start'
                 )
             )
         ),
