@@ -13,7 +13,8 @@ return function($clusterConfig, $nodeConfig) {
         "-A FORWARD -j Cloudconfig-Firewall-INPUT\n" .
         "\n" .
         "-A Cloudconfig-Firewall-INPUT -i lo -j ACCEPT\n" .
-        "\n" .
+        "-A Cloudconfig-Firewall-INPUT -i docker0 -j ACCEPT\n" .
+        "\n".
         "-A Cloudconfig-Firewall-INPUT -p icmp -m icmp --icmp-type echo-request -j ACCEPT\n" .
         "-A Cloudconfig-Firewall-INPUT -p icmp -m icmp --icmp-type echo-reply -j ACCEPT\n" .
         "-A Cloudconfig-Firewall-INPUT -p icmp -m icmp --icmp-type destination-unreachable -j ACCEPT\n" .
