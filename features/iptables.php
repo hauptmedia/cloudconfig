@@ -22,7 +22,8 @@ return function($clusterConfig, $nodeConfig) {
         "-A Cloudconfig-Firewall-INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT\n" .
         "\n".
         // accept ssh, http, https
-        "-A Cloudconfig-Firewall-INPUT -m conntrack --ctstate NEW -m multiport -p tcp --dports 22,80,443 -j ACCEPT\n" .
+        "-A Cloudconfig-Firewall-INPUT -m conntrack --ctstate NEW -m multiport -p tcp --dports 22,80,443,53 -j ACCEPT\n" .
+        "-A Cloudconfig-Firewall-INPUT -m conntrack --ctstate NEW -m multiport -p udp --dports 53 -j ACCEPT\n" .
         "\n";
 
 
