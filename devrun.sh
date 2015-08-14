@@ -13,7 +13,7 @@ docker build -t="hauptmedia/cloudconfig" .
 
 docker run -i -t --rm \
 -p 8080:80 \
--v $(pwd)/../cloudconfig-settings:/opt/cloudconfig/var \
+-v $(pwd)/var:/opt/cloudconfig/var \
 -v $(pwd)/www:/opt/cloudconfig/www \
 -v $(pwd)/features:/opt/cloudconfig/features \
 -e BASE_URL=$BASE_URL \
