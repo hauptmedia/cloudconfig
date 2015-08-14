@@ -1,7 +1,5 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
-
-
     $iptablesRules =
         "*filter\n" .
         ":INPUT DROP [0:0]\n" .
@@ -21,12 +19,25 @@ return function($clusterConfig, $nodeConfig) {
         "-A Cloudconfig-Firewall-INPUT -p icmp -m icmp --icmp-type time-exceeded -j ACCEPT\n" .
         "\n" .
         "-A Cloudconfig-Firewall-INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT\n" .
-        "\n".
-        // accept ssh, http, https
-        "-A Cloudconfig-Firewall-INPUT -m conntrack --ctstate NEW -m multiport -p tcp --dports 22,80,443,53 -j ACCEPT\n" .
-        "-A Cloudconfig-Firewall-INPUT -m conntrack --ctstate NEW -m multiport -p udp --dports 53 -j ACCEPT\n" .
         "\n";
 
+
+    if(array_key_exists('iptables', $nodeConfig) && array_key_exists('allow', $nodeConfig['iptables'])) {
+        foreach($nodeConfig['iptables']['allow'] as $entry) {
+            if(!array_key_exists('protocol', $entry) || !in_array($entry['protocol'], array('tcp', 'udp'))) {
+                throw new \RuntimeException("Wrong protocol for iptables allow entry");
+            }
+
+            if(!array_key_exists('port', $entry) || !is_numeric($entry['port'])) {
+                throw new \RuntimeException("Wrong port for iptables allow entry");
+
+            }
+
+            $iptablesRules .= sprintf("-A Cloudconfig-Firewall-INPUT -m conntrack --ctstate NEW -p %s --dport %u -j ACCEPT\n", $entry['protocol'], $entry['port']);
+        }
+
+        $iptablesRules .= "\n";
+    }
 
     if(array_key_exists('ips', $clusterConfig)) {
         //allow inter node communication between all nodes using their public ips
