@@ -236,15 +236,31 @@ This feature writes the some information about the evironment in `/etc/host.env`
 
 This feature also install the `/opt/bin/getip` script for easy retrieval of the system's main ip address.
 
+### iptables
+
+Setup a firewall on the given node. Automatically configures the firwall to allow inter node communication.
+
+* `cluster[iptables][allow]` `node[iptables][allow]` List of ports which should be allowed for public access
+
+Example:
+
+```yaml
+      iptables:
+          allow:
+              - port: 22
+                protocol: tcp
+              - port: 3306
+                protocol: tcp
+```
 
 ### mount
 
 Mounts a given device to the specified mount point
 
-* `cluster[mount][dev]` `cluster[mount][dev]` Device which should be mounted
-* `cluster[mount][mount-point]` `cluster[mount][mount-point]` Mount point where the device should be mounted
-* `cluster[mount][type]` `cluster[mount][type]` Filesystem type of the mountpoint
-* `cluster[mount][format]` `cluster[mount][format]` If true, the device will be formatted on first system startup
+* `cluster[mount][dev]` `node[mount][dev]` Device which should be mounted
+* `cluster[mount][mount-point]` `node[mount][mount-point]` Mount point where the device should be mounted
+* `cluster[mount][type]` `node[mount][type]` Filesystem type of the mountpoint
+* `cluster[mount][format]` `node[mount][format]` If true, the device will be formatted on first system startup
 
 #### References
 * https://coreos.com/docs/cluster-management/setup/mounting-storage/
