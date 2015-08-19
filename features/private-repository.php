@@ -38,6 +38,13 @@ return function($clusterConfig, $nodeConfig) {
             'permissions'   => '0644',
             'content'       => json_encode($dockercfg)
         );
+
+        $writeFiles[] = array(
+            'path'          => '/root/.dockercfg',
+            'owner'         => 'root:root',
+            'permissions'   => '0644',
+            'content'       => json_encode($dockercfg)
+        );
     }
 
     return array(
