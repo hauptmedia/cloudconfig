@@ -47,11 +47,7 @@ return function($clusterConfig, $nodeConfig) {
     }
 
     //log and drop any other input
-    $iptablesRules .=
-        "-A Cloudconfig-Firewall-INPUT -p tcp -m limit --limit 5/min -j LOG --log-prefix \"Denied TCP: \" --log-level 7\n" .
-        "-A Cloudconfig-Firewall-INPUT -p udp -m limit --limit 5/min -j LOG --log-prefix \"Denied UDP: \" --log-level 7\n" .
-        "-A Cloudconfig-Firewall-INPUT -p icmp -m limit --limit 5/min -j LOG --log-prefix \"Denied ICMP: \" --log-level 7\n" .
-        "-A Cloudconfig-Firewall-INPUT -j DROP\n";
+    $iptablesRules .= "-A Cloudconfig-Firewall-INPUT -j DROP\n";
 
     $iptablesRules .= "COMMIT\n";
 
