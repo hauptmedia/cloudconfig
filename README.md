@@ -12,7 +12,7 @@ cluster:
   features:
     - etcd2
     - etcd-client-ssl
-    - etcd-ssl
+    - etcd2-ssl
     - fleet
     - mount
     - timezone
@@ -23,7 +23,7 @@ cluster:
 
   timezone: Europe/Berlin
 
-  # generate a new token for each unique cluster from https://discovery.etcd.io/new
+  \# generate a new token for each unique cluster from https://discovery.etcd.io/new
   etcd2:
     discovery: https://discovery.etcd.io/xyz
 
@@ -76,8 +76,8 @@ hauptmedia/cloudconfig
 You can also run the provisioning service on your local machine and provide connectivity to it via a reverse ssh tunnel.
 
 ```bash
-# override the BASE_URL so that the host can use the provided reverse ssh tunnel on 127.0.0.1:8080 to reach this service
-# you can also run it in interactive mode and inspect the log files on stdout
+\# override the BASE_URL so that the host can use the provided reverse ssh tunnel on 127.0.0.1:8080 to reach this service
+\# you can also run it in interactive mode and inspect the log files on stdout
 
 docker run -i -t --rm 8080:80 \
 -v $(pwd):/opt/cloudconfig/var \
@@ -88,7 +88,7 @@ hauptmedia/cloudconfig
 ```bash
 ssh -R8080:127.0.0.1:8080 core@host
 
-#or for boot2docker for example
+\#or for boot2docker for example
 ssh -R8080:192.168.59.103:8080 core@host
 ```
 
@@ -131,7 +131,7 @@ You can use the scripts provided in the https://github.com/hauptmedia/ssl-cert r
 bin/create-etcd-cert -t client -c coreos-1.skydns.io
 ```
 
-### etcd-ssl
+### etcd2-ssl
 
 Secures the etcd service using SSL/TLS. You're required to create a certificate authority for etcd (once) and 
 server and peer certs for each cluster node.
@@ -157,7 +157,7 @@ bin/create-etcd-cert -t peer -c coreos-1.skydns.io -i 192.168.1.2
 
 ### flannel
 
-Starts flanneld service. Will be automatically configured for etcd ssl access if etcd-ssl was enabled.
+Starts flanneld service. Will be automatically configured for etcd ssl access if etcd2-ssl was enabled.
 It will also automatically write the specified network settings in etcd.
 
 #### configuration options
@@ -174,7 +174,7 @@ It will also automatically write the specified network settings in etcd.
 
 ### fleet
 
-Runs the fleet service. It automatically configures itself for etcd-ssl if etcd-ssl is enabled.
+Runs the fleet service. It automatically configures itself for etcd2-ssl if etcd2-ssl is enabled.
 
 This feature writes a `/etc/fleet-metadata.env` file which contains the fleet metadata as environment variables.
 
@@ -285,7 +285,7 @@ to be authoritative for the domain name.
 
 ### skydns
 
-Starts the skydns service. Will be automatically configured for etcd ssl access if etcd-ssl was enabled.
+Starts the skydns service. Will be automatically configured for etcd ssl access if etcd2-ssl was enabled.
 It will also automatically write the specified dns config in etcd.
 
 #### configuration options
