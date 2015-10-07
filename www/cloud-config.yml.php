@@ -117,17 +117,6 @@ function extract_etcd_peers_from_nodeconfig($nodeConfig) {
 
         return explode(",", $featureCloudConfig['coreos']['etcd2']['advertise-client-urls']);
 
-    } elseif(in_array('etcd', $nodeConfig['features'])) {
-        $useSSL = in_array('etcd-ssl', $nodeConfig['features']);
-
-        $featureFn          = require("../features/etcd.php");
-        $featureCloudConfig = call_user_func($featureFn, array(), $nodeConfig);
-
-        if(!array_key_exists('coreos', $featureCloudConfig) || !array_key_exists('etcd', $featureCloudConfig['coreos'])) {
-            return array();
-        }
-
-        return array(($useSSL ? 'https://' : 'http://' ) . $featureCloudConfig['coreos']['etcd']['addr']);
     } else {
         return array();
     }
