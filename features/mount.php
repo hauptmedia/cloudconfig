@@ -1,5 +1,9 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
+    if(!array_key_exists('mount', $nodeConfig)) {
+        return;
+    }
+
     $mountConfig = $nodeConfig['mount'];
     $units = array();
 
