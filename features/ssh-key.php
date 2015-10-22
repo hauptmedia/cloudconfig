@@ -1,5 +1,9 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
+    if(!array_key_exists('ssh-key', $nodeConfig)) {
+        return;
+    }
+
     $sshPrivateKeyConfig = $nodeConfig['ssh-key'];
 
     return array(
