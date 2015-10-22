@@ -16,6 +16,11 @@ return function($clusterConfig, $nodeConfig) {
 
     $units = array();
 
+    $units[] = array(
+        'name' => 'systemd-networkd.service',
+        'command' => 'stop'
+    );
+
     foreach($staticNetworkConfiguration as $entry) {
         $i = 0;
 
@@ -34,8 +39,25 @@ return function($clusterConfig, $nodeConfig) {
 
         $units[] = $unit;
 
+        $unit2 = array(
+            'name'      => "down-interface-" . $entry['iface' ] . ".service",
+            'command'   => "start",
+            'content'   =>
+                "[Service]\n" .
+                "Type=oneshot\n" .
+                "ExecStart=/usr/bin/ip link set " . $entry['iface'] .  " down\n" .
+                "ExecStart=/usr/bin/ip addr flush dev " . $entry['iface'] . "\n"
+        );
+
+        $units[] = $unit2;
+
         $i++;
     }
+
+    $units[] =  array(
+        "name" => "systemd-networkd.service",
+        "command" => "restart"
+    );
 
     return array(
         'coreos' => array(
