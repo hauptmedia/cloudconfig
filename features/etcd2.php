@@ -1,7 +1,7 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
     $useSSL         = in_array('etcd2-ssl', $nodeConfig['features']);
-    $etcd2Config    = $nodeConfig['etcd2'];
+    $etcd2Config    = array_key_exists('etcd2', $nodeConfig) ? $nodeConfig['etcd2'] : array();
 
     //try to auto generate etcd2 configuration if no configuration was specified
     if(!array_key_exists('name', $etcd2Config) && array_key_exists('hostname', $nodeConfig)) {
