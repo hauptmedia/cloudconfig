@@ -21,7 +21,7 @@ return function($clusterConfig, $nodeConfig) {
 
         $unit = array(
             'name'      => sprintf('%02d-%s.network', $i, $entry['iface']),
-            'runtime'   => 'true',
+            'runtime'   => true,
             'content'   =>
                 "[Match]\n" .
                 "Name=" . $entry['iface'] . "\n" .
