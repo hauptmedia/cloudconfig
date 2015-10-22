@@ -339,6 +339,16 @@ provide authentication credentials for fleetctl.
 * `cluster[ssh-key][public] `node[ssh-key][public]` - Content of the public key file (will be written to `/home/core/.ssh/id_rsa.pub`)
 
 
+### static-network
+
+Configures a static network configuration
+
+#### configuration options
+* `node[static-network][][iface]` - Interface for which this config entry should be applied
+* `node[static-network][][address]` - CIDR notation for the ip address which should be configured
+* `node[static-network][][dns]` - DNS server to use
+* `node[static-network][][gateway]` - IP address of the gateway which should be used
+
 ### timezone
 * `cluster[timezone] `node[timezone]` - Set the timezone to the specified string on a cluster wide or node level
 
