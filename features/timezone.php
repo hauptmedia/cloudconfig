@@ -1,5 +1,9 @@
 <?php
 return function($clusterConfig, $nodeConfig) {
+    if(!array_key_exists('timezone', $nodeConfig)) {
+        return;
+    }
+
     $timezone = $nodeConfig['timezone'];
 
     if($timezone == "") {
