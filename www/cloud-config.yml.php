@@ -16,7 +16,7 @@ try {
     }
 
 	$nodes = array_values(array_filter($nodeConfigs, function($entry) use ($_GET) {
-		return $entry['mac'] == $_GET['mac'];
+		return strtolower($entry['mac']) == strtolower($_GET['mac']);
 	}));
 
 	if(count($nodes) != 1) {
